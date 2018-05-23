@@ -1,25 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   internal.h                                         :+:      :+:    :+:   */
+/*   malloc.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/05/09 17:46:31 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/09 17:48:28 by kyork            ###   ########.fr       */
+/*   Created: 2018/05/23 12:40:51 by kyork             #+#    #+#             */
+/*   Updated: 2018/05/23 12:46:21 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MALLOC42_INTERNAL_H
-# define MALLOC42_INTERNAL_H
+#include "malloc_private.h"
+#include "malloc_api.h"
 
-# define EXPORT(type) type __attribute__((visibility("default")))
+t_mglobal		g_mglobal = {
+	{0},
+	NULL, 0,
+	PTHREAD_ONCE_INIT,
+	false,
+	0,
+};
 
-# include <stddef.h>
 
-EXPORT(void *)				malloc(size_t size);
-EXPORT(void)				free(void *ptr);
-EXPORT(void *)				realloc(void *ptr, size_t size);
-EXPORT(void)				show_alloc_mem(void);
-
-#endif

@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/24 11:58:13 by kyork             #+#    #+#             */
-/*   Updated: 2018/04/24 13:21:47 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 13:57:28 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 # define FTMALLOC_MALLOC_PRIVATE_H
 
 # include <pthread.h>
+# include <stddef.h>
+# include <stdbool.h>
+# include <sys/types.h>
 
 # ifndef __STDC_NO_ATOMICS__
 #  include <stdatomic.h>
@@ -21,25 +24,26 @@
 #  error Atomic operations are required
 # endif
 
+# include <libft.h>
+# include <commontypes.h>
+
 # define ACCESS_ONCE(x) (*(volatile typeof(x) *)&(x))
 
-# define MEDIUM_ALLOC_CUTOFF 256
-# define HUGE_ALLOC_CUTOFF 4096
+# define ATOM_U64 _Atomic t_u64
 
 /*
-** zoneinfo - array<t_region> protected by zoneinfo_lock
-** standalone - array<t_standalone> for "huge" allocations
+** SZ_FREE - zeroed page, can be reused
+** SZ_DECOMMIT - page has been unmapped
 */
-typedef struct		s_mglobal {
-	pthread_rwlock_t	zoneinfo_lock;
-	t_array				zoneinfo;
-	pthread_mutex_t		standalone_lock;
-	t_array				standalone;
 
-	size_t				pagesize;
-}					t_mglobal;
-
-extern t_mglobal	_malloc_g;
+typedef enum		e_size_class {
+	SZ_FREE = 0,
+	SZ_DECOMMIT = 1,
+	SZ_TINY_8 = 8,
+	SZ_TINY_64 = 64,
+	SZ_MEDIUM_256 = 256,
+	SZ_HUGE = 8192,
+}					t_size_class;
 
 /*
 ** size - the size of the mmap()ed range, in bytes
@@ -48,18 +52,63 @@ extern t_mglobal	_malloc_g;
 ** The minimum value for bitset_bytes is 16 (128 bits), as zones must allow
 ** for at least 100 allocations.
 */
+
 typedef struct		s_region {
 	size_t				size;
 	void				*page;
-	size_t				item_class_size;
-	int					bitset_bytes;
-	_Atomic int			will_delete;
+	t_s16				item_class;
+	t_u16				item_count;
+	t_s32				bitset_bytes;
 }					t_region;
 
-typedef struct		s_standalone {
+/*
+** zoneinfo - array<t_region> protected by zoneinfo_lock
+** pagesize - getpagesize() return
+** 
+*/
+typedef struct		s_mglobal {
+	pthread_rwlock_t	zoneinfo_lock;
+	t_region			*zoneinfo;
+	size_t				zoneinfo_count;
+	size_t				x_zoneinfo_bytes;
 
-}					t_standalone;
+	pthread_once_t		init_once;
+	volatile bool		init_done;
 
-size_t				get_size_class(size_t request);
+	size_t				pagesize;
+}					t_mglobal;
+
+void				malloc_setup(t_mglobal *g);
+void				malloc_panic(const char *str);
+void				malloc_panicf(const char *fmt, ...);
+
+size_t				med_roundup(size_t request);
+
+int					more_zoneinfo(t_mglobal *g);
+int					more_pages(t_mglobal *g, t_size_class cls);
+
+void				*pg_alloc_ptr(t_region *page, size_t idx);
+ATOM_U64			*pg_bitset_ptr(t_region *page, size_t idx);
+
+t_size_class		get_size_class(size_t request);
+void				*small_malloc(t_mglobal *g, t_size_class cls);
+void				*med_malloc(t_mglobal *g, size_t size);
+void				*large_malloc(t_mglobal *g, size_t size);
+
+t_region			*find_mem(void *ptr);
+
+void				*do_malloc(t_mglobal *g, size_t size);
+int					do_free(t_mglobal *g, void *ptr);
+void				*do_realloc(t_mglobal *g, void *ptr, size_t newsize);
+void				do_show_alloc_mem(t_mglobal *g);
+
+typedef enum		e_log_types {
+	LOGT_MALLOC,
+	LOGT_REALLOC,
+	LOGT_FREE,
+	LOGT_BADFREE,
+}					t_log_types;
+
+void				log_call(t_mglobal *g, int which, void *ptr, size_t size);
 
 #endif
