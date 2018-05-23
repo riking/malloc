@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 15:02:20 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 15:12:06 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 15:42:54 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define PANIC_LINE_1 "*** ft_malloc[%d]: panicing\n"
 #define PANIC_PREFIX "*** ft_malloc[%d]: "
-#define PANIC_LINE_FINAL "*** ft_malloc[%d]: The program will now exit."
+#define PANIC_LINE_1 PANIC_PREFIX "panicing!\n"
+#define PANIC_LINE_FINAL PANIC_PREFIX "The program will now exit."
+#define PREFIX "+++ ft_malloc[%d]: "
 
-void				malloc_panicf(const char *fmt, ...)
+VOID_NORETURN		malloc_panicf(const char *fmt, ...)
 {
 	char	buf[1024];
 	int		pid;
@@ -51,15 +52,27 @@ void				malloc_panicf(const char *fmt, ...)
 	exit(127);
 }
 
-void				malloc_panic(const char *str)
+VOID_NORETURN		malloc_panic(const char *str)
 {
 	malloc_panicf("%s", str);
 }
 
 void				log_call(t_mglobal *g, int which, void *ptr, size_t size)
 {
-	(void)g;
-	(void)which;
-	(void)ptr;
-	(void)size;
+	char	buf[1024];
+	int		sz;
+
+	if (!g->enable_logging)
+		return ;
+	sz = 0;
+	if (which == LOGT_MALLOC)
+		sz = ft_snprintf(buf, 1024, PREFIX "allocated %zd bytes at %p\n",
+				getpid(), size, ptr);
+	else if (which == LOGT_REALLOC)
+		sz = ft_snprintf(buf, 1024, PREFIX "realloced %zd bytes to %p\n",
+				getpid(), size, ptr);
+	else if (which == LOGT_FREE)
+		sz = ft_snprintf(buf, 1024, PREFIX "freed %zd bytes at %p\n",
+				getpid(), size, ptr);
+	write(2, buf, sz);
 }

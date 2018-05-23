@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/24 11:58:13 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 14:56:30 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 15:42:35 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # define CEILDIV(x, y) (((x) + (y) - 1) / (y))
 
 # define ATOM_U64 _Atomic t_u64
+# define VOID_NORETURN void __attribute__((noreturn))
 
 # define XPROT_RW (PROT_READ | PROT_WRITE)
 # define XMAP_AP (MAP_ANON | MAP_PRIVATE)
@@ -56,6 +57,9 @@ typedef enum		e_size_class {
 ** item_class_size - the allocation unit for this region
 ** The minimum value for bitset_bytes is 16 (128 bits), as zones must allow
 ** for at least 100 allocations.
+**
+** sz_medium gets two bits per slot, using a 0x3 for alloc start and 0x2 for
+** continuations
 */
 
 typedef struct		s_region {
@@ -79,13 +83,17 @@ typedef struct		s_mglobal {
 	pthread_once_t		init_once;
 	volatile bool		init_done;
 
+	bool				enable_logging;
+	bool				enable_asan;
+	bool				secure_erase;
+
 	t_u32				pagefree_cycle;
 	size_t				pagesize;
 }					t_mglobal;
 
 void				malloc_setup(t_mglobal *g);
-void				malloc_panic(const char *str);
-void				malloc_panicf(const char *fmt, ...);
+VOID_NORETURN		malloc_panic(const char *str);
+VOID_NORETURN		malloc_panicf(const char *fmt, ...);
 
 size_t				med_roundup(size_t request);
 
@@ -107,11 +115,10 @@ ATOM_U64			*pg_bitset_ptr(t_region *page, size_t idx);
 t_size_class		get_size_class(size_t request);
 void				*small_malloc(t_mglobal *g, t_size_class cls);
 void				*med_malloc(t_mglobal *g, size_t size);
-void				*large_malloc(t_mglobal *g, size_t size);
+void				*huge_malloc(t_mglobal *g, size_t size);
 
 t_region			*find_mem(void *ptr);
 
-void				*do_malloc(t_mglobal *g, size_t size);
 int					do_free(t_mglobal *g, void *ptr);
 void				*do_realloc(t_mglobal *g, void *ptr, size_t newsize);
 void				do_show_alloc_mem(t_mglobal *g);

@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 12:40:51 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 15:00:43 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 15:28:28 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ t_mglobal			g_mglobal = {
 	NULL, 0, 0,
 	PTHREAD_ONCE_INIT,
 	false,
+	false, false, false,
 	0, 0,
 };
 
@@ -32,11 +33,18 @@ PRIVATE_VOID		malloc_setup_stub(void)
 
 EXPORT_VOIDSTAR		malloc(size_t size)
 {
-	void	*newptr;
+	t_size_class	cls;
+	void			*newptr;
 
 	if (!ACCESS_ONCE(g_mglobal.init_done))
 		pthread_once(&g_mglobal.init_once, malloc_setup_stub);
-	newptr = do_malloc(&g_mglobal, size);
+	cls = get_size_class(size);
+	if (cls == SZ_TINY_8 || cls == SZ_TINY_64)
+		newptr = small_malloc(&g_mglobal, cls);
+	else if (cls == SZ_MEDIUM_256)
+		newptr = med_malloc(&g_mglobal, size);
+	else
+		newptr = huge_malloc(&g_mglobal, size);
 	log_call(&g_mglobal, LOGT_MALLOC, newptr, size);
 	if (!newptr)
 		errno = ENOMEM;
@@ -58,7 +66,8 @@ EXPORT_VOIDSTAR		realloc(void *ptr, size_t size)
 
 	if (!ACCESS_ONCE(g_mglobal.init_done))
 		pthread_once(&g_mglobal.init_once, malloc_setup_stub);
-	newptr = do_realloc(&g_mglobal, ptr, size);
+	(void)ptr;
+	newptr = NULL; //do_realloc(&g_mglobal, ptr, size);
 	log_call(&g_mglobal, LOGT_REALLOC, newptr, size);
 	if (!newptr)
 		errno = ENOMEM;

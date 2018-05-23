@@ -6,13 +6,17 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 14:10:12 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 14:41:28 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 15:40:46 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_private.h"
 #include "pages.h"
 #include <sys/mman.h>
+
+/*
+** bitset size cannot be smaller than alloc alignment
+*/
 
 const static t_pagesizes	g_pagesize_dfns[] = {
 	{SZ_TINY_8, 8192, 1008, 128},
