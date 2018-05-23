@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 12:40:51 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 13:01:42 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 14:57:56 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,19 @@
 #include <errno.h>
 
 t_mglobal			g_mglobal = {
-	{0},
-	NULL, 0,
+	{},
+	NULL, 0, 0,
 	PTHREAD_ONCE_INIT,
 	false,
-	0,
+	0, 0,
 };
 
-void				malloc_setup_stub(void)
+PRIVATE_VOID		malloc_setup_stub(void)
 {
 	malloc_setup(&g_mglobal);
 }
 
-EXPORT(void *)		malloc(size_t size)
+EXPORT_VOIDSTAR		malloc(size_t size)
 {
 	void	*newptr;
 
@@ -41,10 +41,8 @@ EXPORT(void *)		malloc(size_t size)
 	return (newptr);
 }
 
-EXPORT(void)		free(void *ptr)
+EXPORT_VOID			free(void *ptr)
 {
-	int		logcode;
-
 	if (!ACCESS_ONCE(g_mglobal.init_done))
 		pthread_once(&g_mglobal.init_once, malloc_setup_stub);
 	if (!ptr)
@@ -52,7 +50,7 @@ EXPORT(void)		free(void *ptr)
 	do_free(&g_mglobal, ptr);
 }
 
-EXPORT(void *)		realloc(void *ptr, size_t size)
+EXPORT_VOIDSTAR		realloc(void *ptr, size_t size)
 {
 	void	*newptr;
 
@@ -65,7 +63,7 @@ EXPORT(void *)		realloc(void *ptr, size_t size)
 	return (newptr);
 }
 
-EXPORT(void)		show_alloc_mem(void)
+EXPORT_VOID			show_alloc_mem(void)
 {
 	if (!ACCESS_ONCE(g_mglobal.init_done))
 		pthread_once(&g_mglobal.init_once, malloc_setup_stub);

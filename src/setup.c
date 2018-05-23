@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 13:01:58 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 13:58:31 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 14:58:08 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,6 @@
 #include <stdio.h>
 #include <sys/mman.h>
 #include <unistd.h>
-
-#define CEILDIV(x, y) (((x) + (y) - 1) / (y))
 
 void			malloc_setup(t_mglobal *g)
 {
@@ -37,7 +35,6 @@ int				more_zoneinfo(t_mglobal *g)
 {
 	void		*new_zoneinfo;
 	size_t		new_bytes;
-	size_t		new_count;
 
 	pthread_rwlock_wrlock(&g->zoneinfo_lock);
 	new_bytes = g->x_zoneinfo_bytes * 2;

@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/24 11:58:13 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 13:57:28 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 14:56:30 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,21 +28,26 @@
 # include <commontypes.h>
 
 # define ACCESS_ONCE(x) (*(volatile typeof(x) *)&(x))
+# define CEILDIV(x, y) (((x) + (y) - 1) / (y))
 
 # define ATOM_U64 _Atomic t_u64
 
+# define XPROT_RW (PROT_READ | PROT_WRITE)
+# define XMAP_AP (MAP_ANON | MAP_PRIVATE)
+
 /*
-** SZ_FREE - zeroed page, can be reused
-** SZ_DECOMMIT - page has been unmapped
+** SZ_DECOMMIT - page has been unmapped / never allocated
+** SZ_FREE - page can be reused
 */
 
 typedef enum		e_size_class {
-	SZ_FREE = 0,
-	SZ_DECOMMIT = 1,
+	SZ_DECOMMIT = 0,
+	SZ_FREE = 1,
 	SZ_TINY_8 = 8,
 	SZ_TINY_64 = 64,
 	SZ_MEDIUM_256 = 256,
 	SZ_HUGE = 8192,
+	SZ_MIN_VALID = SZ_TINY_8,
 }					t_size_class;
 
 /*
@@ -64,7 +69,6 @@ typedef struct		s_region {
 /*
 ** zoneinfo - array<t_region> protected by zoneinfo_lock
 ** pagesize - getpagesize() return
-** 
 */
 typedef struct		s_mglobal {
 	pthread_rwlock_t	zoneinfo_lock;
@@ -75,6 +79,7 @@ typedef struct		s_mglobal {
 	pthread_once_t		init_once;
 	volatile bool		init_done;
 
+	t_u32				pagefree_cycle;
 	size_t				pagesize;
 }					t_mglobal;
 
@@ -84,8 +89,17 @@ void				malloc_panicf(const char *fmt, ...);
 
 size_t				med_roundup(size_t request);
 
+/*
+** more_zoneinfo - increases the zoneinfo allocation
+**   returns nonzero on error
+** more_pages - allocates more pages for the given size class (no HUGE)
+**   returns nonzero on error
+** new_huge_page - make a new SZ_HUGE page of given size
+*/
+
 int					more_zoneinfo(t_mglobal *g);
 int					more_pages(t_mglobal *g, t_size_class cls);
+int					new_huge_page(t_mglobal *g, size_t size);
 
 void				*pg_alloc_ptr(t_region *page, size_t idx);
 ATOM_U64			*pg_bitset_ptr(t_region *page, size_t idx);

@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 12:34:35 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 14:58:38 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ static ssize_t			bitmask_claim(ATOM_U64 *set)
 
 static void				*reserve1(t_region *page)
 {
-	ATOM_U64		*bitmask_ptr;
 	ssize_t			idx;
 	ssize_t			r;
 
@@ -65,8 +64,8 @@ void					*small_malloc(t_mglobal *g, t_size_class cls)
 		mem = NULL;
 		while (++idx < g->zoneinfo_count)
 		{
-			if (g->zoneinfo[idx]->item_class == cls)
-				mem = reserve1((t_region*)ft_ary_get(&g->zoneinfo, idx));
+			if (g->zoneinfo[idx].item_class == cls)
+				mem = reserve1(&g->zoneinfo[idx]);
 		}
 		pthread_rwlock_unlock(&g->zoneinfo_lock);
 		if (mem)
