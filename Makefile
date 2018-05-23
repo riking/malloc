@@ -6,22 +6,30 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/04/24 11:53:59 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/22 17:56:11 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME		= libft_malloc.a
+ifeq ($(HOSTTYPE),)
+	HOSTTYPE := $(shell uname -m)_$(shell uname -s)
+endif
 
-FILENAMES	+= 
-FILENAMES	+= 
-FILENAMES	+= 
-FILENAMES	+= 
+NAME		= libft_malloc_$(HOSTTYPE).so
+
+FILENAMES	+=
+FILENAMES	+=
+FILENAMES	+=
+FILENAMES	+=
 
 OBJS		= $(addprefix build/ft_malloc_, $(FILENAMES:.c=.o))
+OBJS		+= libft/libft.a
 
 CFLAGS		+= -Wall -Wextra -Wmissing-prototypes
+#CFLAGS		= -Wall -Wextra -Wfloat-equal -Wundef -Wint-to-pointer-cast -Wshadow -Wpointer-arith -Wcast-align -Wstrict-prototypes -Wcast-qual -Wmissing-prototypes -Wstrict-overflow=5 -Wwrite-strings -Wconversion --pedantic-errors
 CFLAGS		+= -I includes/
 LDFLAGS		+= -Wall -Wextra
+CFLAGS		+= -fPIC -fvisibility=hidden
+LDFLAGS		+= -shared -fPIC -fvisibility=hidden
 
 ifndef NO_WERROR
 	CFLAGS += -Werror
@@ -30,11 +38,16 @@ endif
 
 .PHONY: all clean fclean re
 
-all: $(NAME)
+all: libft_malloc.a
+
+libft_malloc.a: libft_malloc_$(HOSTTYPE).a
+	ln -s $< $@
 
 $(NAME): $(OBJS)
-	ar rcs $(NAME) $(OBJS)
-	@printf "\e[32m\e[1m[OK]\e[m $$(basename $@)\n"
+	$(LD) -o $@ $(LDFLAGS) $(OBJS)
+
+libft/libft.a:
+	make -C libft libft.a CFLAGS="-fvisibility=hidden"
 
 clean:
 	rm -rf build
@@ -54,15 +67,3 @@ build/ft_malloc_%.o: srcs/%.c srcs/*.h
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-build/%.o: tests/%.c
-	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-smalltest: build/small_test.o $(NAME) | build
-	$(CC) $(LDFLAGS) -o $@ build/small_test.o -L. -lft_malloc
-
-nm_test: build/nm_test.o $(NAME)
-	$(CC) $(LDFLAGS) -o $@ build/nm_test.o -L. -lft_malloc
-
-fuzzmain: build/fuzz_main.o $(NAME) | build
-	$(CC) $(LDFLAGS) -o $@ build/small_test.o -L. -lft_malloc
