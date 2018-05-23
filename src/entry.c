@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 12:40:51 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 14:57:56 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 15:00:43 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,10 @@
 
 #include <errno.h>
 
+#define EMPTY_INIT {}
+
 t_mglobal			g_mglobal = {
-	{},
+	EMPTY_INIT,
 	NULL, 0, 0,
 	PTHREAD_ONCE_INIT,
 	false,
