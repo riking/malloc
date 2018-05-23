@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 15:43:46 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 16:55:00 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,5 +72,23 @@ void					*small_malloc(t_mglobal *g, t_size_class cls)
 			return (mem);
 		if (more_pages(g, cls) < 0)
 			return (NULL);
+	}
+}
+
+ssize_t					small_free(t_region *page, size_t idx)
+{
+	t_u64			maskval;
+	t_u64			newval;
+
+	maskval = atomic_load_explicit(pg_bitset_ptr(page, idx),
+			memory_order_acquire);
+	while (1)
+	{
+		if ((maskval & (1 << (idx % 64))) == 0)
+			return (-1);
+		newval = maskval & ~(1 << (idx % 64));
+		if (atomic_compare_exchange_weak(pg_bitset_ptr(page, idx), &maskval,
+					newval))
+			return (page->item_class);
 	}
 }

@@ -6,7 +6,7 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/05/23 16:17:37 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/23 16:41:51 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ endif
 
 NAME		= libft_malloc_$(HOSTTYPE).so
 
-FILENAMES	+= entry.c setup.c panic.c
+FILENAMES	+= entry.c setup.c panic.c free.c
 FILENAMES	+= pages.c small_malloc.c bitset_offset.c
 FILENAMES	+= med_malloc.c
 FILENAMES	+=

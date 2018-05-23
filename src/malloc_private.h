@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/24 11:58:13 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 15:42:35 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 16:47:28 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ typedef struct		s_mglobal {
 	bool				enable_asan;
 	bool				secure_erase;
 
-	t_u32				pagefree_cycle;
+	ATOM_U64			pagefree_cycle;
 	size_t				pagesize;
 }					t_mglobal;
 
@@ -110,16 +110,21 @@ int					more_pages(t_mglobal *g, t_size_class cls);
 int					new_huge_page(t_mglobal *g, size_t size);
 
 void				*pg_alloc_ptr(t_region *page, size_t idx);
+size_t				pg_alloc_idx(t_region *page, void *ptr);
 ATOM_U64			*pg_bitset_ptr(t_region *page, size_t idx);
 
 t_size_class		get_size_class(size_t request);
 void				*small_malloc(t_mglobal *g, t_size_class cls);
+ssize_t				small_free(t_region *page, size_t idx);
 void				*med_malloc(t_mglobal *g, size_t size);
+ssize_t				med_free(t_region *page, size_t idx);
 void				*huge_malloc(t_mglobal *g, size_t size);
+ssize_t				huge_free(t_region *page);
 
-t_region			*find_mem(void *ptr);
+ssize_t				do_free(t_mglobal *g, void *ptr);
+t_region			*find_region(t_mglobal *g, char *ptr);
+void				free_cycle(t_mglobal *g, size_t bytes);
 
-int					do_free(t_mglobal *g, void *ptr);
 void				*do_realloc(t_mglobal *g, void *ptr, size_t newsize);
 void				do_show_alloc_mem(t_mglobal *g);
 
@@ -127,7 +132,6 @@ typedef enum		e_log_types {
 	LOGT_MALLOC,
 	LOGT_REALLOC,
 	LOGT_FREE,
-	LOGT_BADFREE,
 }					t_log_types;
 
 void				log_call(t_mglobal *g, int which, void *ptr, size_t size);
