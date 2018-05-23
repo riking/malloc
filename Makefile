@@ -6,7 +6,7 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/05/23 14:59:11 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/23 15:12:20 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ endif
 
 NAME		= libft_malloc_$(HOSTTYPE).so
 
-FILENAMES	+= entry.c setup.c
+FILENAMES	+= entry.c setup.c panic.c
 FILENAMES	+= pages.c pg_reserve.c
 FILENAMES	+=
 FILENAMES	+=
@@ -28,7 +28,6 @@ CFLAGS		+= -Wall -Wextra -Wmissing-prototypes
 #CFLAGS		= -Wall -Wextra -Wfloat-equal -Wundef -Wint-to-pointer-cast -Wshadow -Wpointer-arith -Wcast-align -Wstrict-prototypes -Wcast-qual -Wmissing-prototypes -Wstrict-overflow=5 -Wwrite-strings -Wconversion --pedantic-errors
 CFLAGS		+= -I include/
 CFLAGS		+= -fPIC -fvisibility=hidden
-LDFLAGS		+= -fPIC -fvisibility=hidden
 SYMBOLS		= malloc free realloc show_alloc_mem
 
 ifndef NO_WERROR
@@ -44,7 +43,7 @@ libft_malloc_x86_64_Linux.so: $(OBJS)
 	$(CC) -o $@ -shared -fPIC -fvisibility=hidden $(OBJS)
 
 libft_malloc_x86_64_Darwin.so: $(OBJS)
-	$(CC) -o $@ -shared $(addprefix --for-linker=-exported_symbol --for-linker=_,$(SYMBOLS)) $(OBJS)
+	$(CC) -o $@ -shared -fPIC -fvisibility=hidden $(OBJS) $(addprefix --for-linker=-exported_symbol --for-linker=_,$(SYMBOLS))
 
 libft/libft.a:
 	make -C libft libft.a 
