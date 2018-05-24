@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 13:01:58 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 14:58:08 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 17:19:31 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 
 void			malloc_setup(t_mglobal *g)
 {
-	if (!pthread_rwlock_init(&g->zoneinfo_lock, NULL))
-		malloc_panic("could not initialize locks");
+	if (0 != pthread_rwlock_init(&g->zoneinfo_lock, NULL))
+		malloc_panicf("could not initialize locks: %s", sys_errlist[errno]);
 	g->pagesize = getpagesize();
 	g->x_zoneinfo_bytes = g->pagesize * 2;
 	g->zoneinfo = mmap(NULL, g->x_zoneinfo_bytes, PROT_READ | PROT_WRITE,

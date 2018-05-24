@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 15:29:47 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 16:23:15 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 17:36:33 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,9 +50,9 @@ ATOM_U64			*pg_bitset_ptr(t_region *page, size_t idx)
 
 t_size_class		get_size_class(size_t size)
 {
-	if (size < SZ_TINY_8)
+	if (size <= SZ_TINY_8)
 		return (SZ_TINY_8);
-	if (size < SZ_TINY_64)
+	if (size <= SZ_TINY_64)
 		return (SZ_TINY_64);
 	if (size < SZ_HUGE)
 		return (SZ_MEDIUM_256);

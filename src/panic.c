@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 15:02:20 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 15:42:54 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 17:32:45 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,9 @@ void				log_call(t_mglobal *g, int which, void *ptr, size_t size)
 	char	buf[1024];
 	int		sz;
 
-	if (!g->enable_logging)
-		return ;
+	(void)g;
+	//if (!g->enable_logging)
+	//	return ;
 	sz = 0;
 	if (which == LOGT_MALLOC)
 		sz = ft_snprintf(buf, 1024, PREFIX "allocated %zd bytes at %p\n",

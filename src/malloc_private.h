@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/24 11:58:13 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 16:47:28 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 17:00:04 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,7 @@ ssize_t				small_free(t_region *page, size_t idx);
 void				*med_malloc(t_mglobal *g, size_t size);
 ssize_t				med_free(t_region *page, size_t idx);
 void				*huge_malloc(t_mglobal *g, size_t size);
-ssize_t				huge_free(t_region *page);
+ssize_t				huge_free(t_region *page, void *ptr);
 
 ssize_t				do_free(t_mglobal *g, void *ptr);
 t_region			*find_region(t_mglobal *g, char *ptr);

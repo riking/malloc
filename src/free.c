@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:23:59 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 16:47:34 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 17:25:01 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ t_region		*find_region(t_mglobal *g, char *ptr)
 	found = NULL;
 	while (!found && idx < g->zoneinfo_count)
 	{
-		if (g->zoneinfo[idx].item_class > SZ_MIN_VALID)
+		if (g->zoneinfo[idx].item_class >= SZ_MIN_VALID)
 		{
 			pg = g->zoneinfo[idx].page;
 			if (ptr > pg && ptr < (pg + g->zoneinfo[idx].size))
@@ -43,7 +43,7 @@ ssize_t			do_free(t_mglobal *g, void *ptr)
 	if (!r)
 		malloc_panicf("free() of an unmanaged pointer: %p", ptr);
 	if (r->item_class == SZ_HUGE)
-		size = huge_free(r);
+		size = huge_free(r, ptr);
 	else if (r->item_class == SZ_TINY_8 || r->item_class == SZ_TINY_64)
 		size = small_free(r, pg_alloc_idx(r, ptr));
 	else if (r->item_class == SZ_MEDIUM_256)

@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 16:55:00 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 17:40:15 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void					*small_malloc(t_mglobal *g, t_size_class cls)
 		pthread_rwlock_rdlock(&g->zoneinfo_lock);
 		idx = -1;
 		mem = NULL;
-		while (++idx < g->zoneinfo_count)
+		while (!mem && ++idx < g->zoneinfo_count)
 		{
 			if (g->zoneinfo[idx].item_class == cls)
 				mem = reserve1(&g->zoneinfo[idx]);
@@ -70,7 +70,7 @@ void					*small_malloc(t_mglobal *g, t_size_class cls)
 		pthread_rwlock_unlock(&g->zoneinfo_lock);
 		if (mem)
 			return (mem);
-		if (more_pages(g, cls) < 0)
+		if (0 != more_pages(g, cls))
 			return (NULL);
 	}
 }

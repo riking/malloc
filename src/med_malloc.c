@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 16:15:01 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/23 17:38:19 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ void					*med_malloc(t_mglobal *g, size_t bytes)
 		pthread_rwlock_unlock(&g->zoneinfo_lock);
 		if (mem)
 			return (mem);
-		if (more_pages(g, SZ_MEDIUM_256) < 0)
+		if (0 != more_pages(g, SZ_MEDIUM_256))
 			return (NULL);
 	}
 }

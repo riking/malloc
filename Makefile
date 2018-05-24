@@ -6,7 +6,7 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/05/23 16:41:51 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/23 17:32:11 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,11 +15,12 @@ ifeq ($(HOSTTYPE),)
 endif
 
 NAME		= libft_malloc_$(HOSTTYPE).so
+LIBNAME		= ft_malloc_$(HOSTTYPE)
 
 FILENAMES	+= entry.c setup.c panic.c free.c
 FILENAMES	+= pages.c small_malloc.c bitset_offset.c
-FILENAMES	+= med_malloc.c
-FILENAMES	+=
+FILENAMES	+= med_malloc.c med_free.c
+FILENAMES	+= huge_malloc.c show_mem.c
 
 OBJS		= $(addprefix build/ft_malloc_, $(FILENAMES:.c=.o))
 OBJS		+= libft/libft.a
@@ -27,7 +28,7 @@ OBJS		+= libft/libft.a
 CFLAGS		+= -Wall -Wextra -Wmissing-prototypes
 #CFLAGS		= -Wall -Wextra -Wfloat-equal -Wundef -Wint-to-pointer-cast -Wshadow -Wpointer-arith -Wcast-align -Wstrict-prototypes -Wcast-qual -Wmissing-prototypes -Wstrict-overflow=5 -Wwrite-strings -Wconversion --pedantic-errors
 CFLAGS		+= -I include/
-CFLAGS		+= -fPIC -fvisibility=hidden
+CFLAGS		+= -fPIC -fvisibility=hidden -g
 SYMBOLS		= malloc free realloc show_alloc_mem
 
 ifndef NO_WERROR
@@ -43,7 +44,7 @@ libft_malloc_x86_64_Linux.so: $(OBJS)
 	$(CC) -o $@ -shared -fPIC -fvisibility=hidden $(OBJS)
 
 libft_malloc_x86_64_Darwin.so: $(OBJS)
-	$(CC) -o $@ -shared -fPIC -fvisibility=hidden $(OBJS) $(addprefix --for-linker=-exported_symbol --for-linker=_,$(SYMBOLS))
+	$(CC) -o $@ -shared $(CFLAGS) $(OBJS) $(addprefix --for-linker=-exported_symbol --for-linker=_,$(SYMBOLS)) -lpthread
 
 libft/libft.a:
 	make -C libft libft.a 
@@ -65,3 +66,8 @@ build/ft_malloc_%.o: src/%.c src/*.h
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+test1: testsrc/simple.c $(NAME)
+	$(CC) $(CFLAGS) -o $@ $^ -L. -l$(LIBNAME) -L./libft -lft
+
+test2: testsrc/circlemalloc.c $(NAME)
+	$(CC) $(CFLAGS) -o $@ $^ -L. -l$(LIBNAME) -L./libft -lft
