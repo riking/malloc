@@ -1,42 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   circlemalloc.c                                     :+:      :+:    :+:   */
+/*   double_free.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/05/23 17:27:51 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 15:18:46 by kyork            ###   ########.fr       */
+/*   Created: 2018/05/29 15:22:26 by kyork             #+#    #+#             */
+/*   Updated: 2018/05/29 15:22:46 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <libft.h>
 #include <malloc.h>
 
-#include <stdlib.h>
-
-int			main(int argc, char **argv)
+int		main(void)
 {
-	int		size;
-	void	*buffer[5000];
-	int		idx;
-	int		off;
+	char	*ptr;
 
-	if (argc == 2)
-		size = ft_atoi(argv[1]);
-	else
-		size = 8;
-	idx = 0;
-	while (idx < 5000)
-		buffer[idx++] = 0;
-	idx = 0;
-	while (idx < 5000 * 2)
-	{
-		off = (idx + rand()) % 5000;
-		free(buffer[off]);
-		buffer[off] = NULL;
-		free(buffer[idx % 5000]);
-		buffer[idx % 5000] = malloc(size);
-		idx++;
-	}
+	ptr = malloc(13);
+	free(ptr);
+	free(ptr);
 }
