@@ -6,7 +6,7 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/05/23 17:32:11 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/29 16:08:54 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ ifeq ($(HOSTTYPE),)
 	HOSTTYPE := $(shell uname -m)_$(shell uname -s)
 endif
 
-NAME		= libft_malloc_$(HOSTTYPE).so
+NAME		= libft_malloc.so
 LIBNAME		= ft_malloc_$(HOSTTYPE)
 
 FILENAMES	+= entry.c setup.c panic.c free.c
@@ -39,6 +39,9 @@ endif
 .PHONY: all clean fclean re
 
 all: $(NAME)
+
+libft_malloc.so: libft_malloc_$(HOSTTYPE).so
+	ln -s $< $@
 
 libft_malloc_x86_64_Linux.so: $(OBJS)
 	$(CC) -o $@ -shared -fPIC -fvisibility=hidden $(OBJS)
@@ -70,4 +73,10 @@ test1: testsrc/simple.c $(NAME)
 	$(CC) $(CFLAGS) -o $@ $^ -L. -l$(LIBNAME) -L./libft -lft
 
 test2: testsrc/circlemalloc.c $(NAME)
+	$(CC) $(CFLAGS) -o $@ $^ -L. -l$(LIBNAME) -L./libft -lft
+
+test3: testsrc/double_free.c $(NAME)
+	$(CC) $(CFLAGS) -o $@ $^ -L. -l$(LIBNAME) -L./libft -lft
+
+test4: testsrc/alloc_way_too_much.c $(NAME)
 	$(CC) $(CFLAGS) -o $@ $^ -L. -l$(LIBNAME) -L./libft -lft
