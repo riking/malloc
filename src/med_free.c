@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:55:39 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 17:20:37 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 18:14:26 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,20 @@ static int			med_detect_size(t_u64 maskval, t_u8 offset, int max)
 	}
 	size = size / 2;
 	return (size / 2);
+}
+
+ssize_t				med_getsize(t_region *page, void *ptr)
+{
+	t_u64	maskval;
+	size_t	idx;
+	int		size;
+
+	idx = pg_alloc_idx(page, ptr);
+	maskval = atomic_load(pg_bitset_ptr(page, idx));
+	size = med_detect_size(maskval, idx % 32, (page->item_count - idx));
+	if (size == 0)
+		return (-1);
+	return (size * SZ_MEDIUM_256);
 }
 
 ssize_t				med_free(t_region *page, size_t idx)

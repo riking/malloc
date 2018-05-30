@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 17:24:45 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 18:54:56 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ static ssize_t			bitmask_claim(ATOM_U64 *set)
 
 static void				*reserve1(t_region *page)
 {
-	ssize_t			idx;
+	size_t			idx;
 	ssize_t			r;
 
 	idx = 0;

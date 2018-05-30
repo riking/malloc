@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/24 11:58:13 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 18:03:17 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 18:48:08 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ typedef enum		e_size_class {
 ** size - the size of the mmap()ed range, in bytes
 ** page - pointer to the beginning of the page(s)
 ** item_class_size - the allocation unit for this region
+** item_count - for TINY/MEDIUM, the number of available slots
+**              for HUGE, the number of bytes originally requested
 ** The minimum value for bitset_bytes is 16 (128 bits), as zones must allow
 ** for at least 100 allocations.
 **
@@ -65,8 +67,8 @@ typedef enum		e_size_class {
 typedef struct		s_region {
 	size_t				size;
 	void				*page;
+	size_t				item_count;
 	t_s16				item_class;
-	t_u16				item_count;
 	t_s32				bitset_bytes;
 }					t_region;
 
@@ -80,6 +82,7 @@ typedef struct		s_mglobal {
 	size_t				zoneinfo_count;
 	size_t				x_zoneinfo_bytes;
 
+	pthread_mutex_t		print_lock;
 	pthread_once_t		init_once;
 	volatile bool		init_done;
 
@@ -111,11 +114,16 @@ size_t				pg_alloc_idx(t_region *page, void *ptr);
 ATOM_U64			*pg_bitset_ptr(t_region *page, size_t idx);
 
 t_size_class		get_size_class(size_t request);
+
+void				*do_malloc(t_mglobal *g, size_t size);
+void				*do_realloc(t_mglobal *g, void *ptr, size_t newsize);
+
 void				*small_malloc(t_mglobal *g, t_size_class cls);
 ssize_t				small_free(t_region *page, size_t idx);
 size_t				small_show(t_region *page, int flags);
 
 void				*med_malloc(t_mglobal *g, size_t size);
+ssize_t				med_getsize(t_region *page, void *ptr);
 ssize_t				med_free(t_region *page, size_t idx);
 size_t				med_show(t_region *page, int flags);
 
@@ -127,7 +135,6 @@ ssize_t				do_free(t_mglobal *g, void *ptr);
 t_region			*find_region(t_mglobal *g, char *ptr);
 void				try_pagefree(t_mglobal *g, void *ptr);
 
-void				*do_realloc(t_mglobal *g, void *ptr, size_t newsize);
 
 # define SHOW_ALLOCD (1 << 0)
 # define SHOW_ISFREE (1 << 1)
@@ -142,11 +149,15 @@ size_t				do_show_alloc_mem(t_mglobal *g);
 
 typedef enum		e_log_types {
 	LOGT_MALLOC,
-	LOGT_REALLOC,
 	LOGT_FREE,
 	LOGT_BADFREE,
+	LOGT_REALLOC_IP,
+	LOGT_BADREALLOC,
+	LOGT_REALLOC_OLD,
+	LOGT_REALLOC_NEW,
 }					t_log_types;
 
 void				log_call(t_mglobal *g, int which, void *ptr, size_t size);
+void				log_callb(t_mglobal *g, int whic, void *ptr, size_t size);
 
 #endif

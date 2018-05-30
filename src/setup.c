@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 13:01:58 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 17:53:37 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 18:50:45 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@ static bool		env_bool(const char *name)
 void			malloc_setup(t_mglobal *g)
 {
 	if (0 != pthread_rwlock_init(&g->zoneinfo_lock, NULL))
+		malloc_panicf("could not initialize locks: %s", sys_errlist[errno]);
+	if (0 != pthread_mutex_init(&g->print_lock, NULL))
 		malloc_panicf("could not initialize locks: %s", sys_errlist[errno]);
 	g->pagesize = getpagesize();
 	g->x_zoneinfo_bytes = g->pagesize * 2;

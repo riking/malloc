@@ -6,11 +6,30 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:23:59 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 18:00:11 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 18:52:33 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_private.h"
+
+/*
+** do_malloc exists solely so that realloc can call it
+*/
+
+void			*do_malloc(t_mglobal *g, size_t size)
+{
+	t_size_class	cls;
+	void			*newptr;
+
+	cls = get_size_class(size);
+	if (cls == SZ_TINY_8 || cls == SZ_TINY_64)
+		newptr = small_malloc(g, cls);
+	else if (cls == SZ_MEDIUM_256)
+		newptr = med_malloc(g, size);
+	else
+		newptr = huge_malloc(g, size);
+	return (newptr);
+}
 
 t_region		*find_region(t_mglobal *g, char *ptr)
 {
@@ -40,22 +59,81 @@ ssize_t			do_free(t_mglobal *g, void *ptr)
 
 	pthread_rwlock_rdlock(&g->zoneinfo_lock);
 	r = find_region(g, ptr);
+	if (r)
+	{
+		if (r->item_class == SZ_HUGE)
+		{
+			pthread_rwlock_unlock(&g->zoneinfo_lock);
+			pthread_rwlock_wrlock(&g->zoneinfo_lock);
+			size = huge_free(find_region(g, ptr), ptr);
+		}
+		else if (r->item_class == SZ_TINY_8 || r->item_class == SZ_TINY_64)
+			size = small_free(r, pg_alloc_idx(r, ptr));
+		else if (r->item_class == SZ_MEDIUM_256)
+			size = med_free(r, pg_alloc_idx(r, ptr));
+		else
+			malloc_panic("find_region returned invalid region");
+	}
+	pthread_rwlock_unlock(&g->zoneinfo_lock);
 	if (!r)
-		malloc_panicf("free() of an unmanaged pointer: %p", ptr);
+		return (-1);
+	return (size);
+}
+
+/*
+** returns size of existing allocation; also responsible for bookkeeping
+** of HUGE reallocs
+*/
+
+static ssize_t	realloc_getsize(t_mglobal *g, void *ptr, size_t newsize)
+{
+	t_region	*r;
+
+	r = find_region(g, ptr);
+	if (!r)
+		return (-1);
+	if (r->item_class == SZ_TINY_8 || r->item_class == SZ_TINY_64)
+		return (r->item_class);
+	if (r->item_class == SZ_MEDIUM_256)
+		return (med_getsize(r, ptr));
 	if (r->item_class == SZ_HUGE)
 	{
-		pthread_rwlock_unlock(&g->zoneinfo_lock);
-		pthread_rwlock_wrlock(&g->zoneinfo_lock);
-		size = huge_free(r, find_region(g, ptr));
+		if (newsize <= r->size)
+			r->item_count = newsize;
+		return (r->size);
 	}
-	else if (r->item_class == SZ_TINY_8 || r->item_class == SZ_TINY_64)
-		size = small_free(r, pg_alloc_idx(r, ptr));
-	else if (r->item_class == SZ_MEDIUM_256)
-		size = med_free(r, pg_alloc_idx(r, ptr));
-	else
-		malloc_panic("find_region returned decommitted region");
+	malloc_panic("find_region returned invalid region");
+}
+
+/*
+** step 1: check for in-place upgrade/downgrade / invalid ptr
+** step 2: allocate new memory
+*/
+
+void			*do_realloc(t_mglobal *g, void *ptr, size_t newsize)
+{
+	ssize_t		exsize;
+	void		*newptr;
+
+	pthread_rwlock_wrlock(&g->zoneinfo_lock);
+	exsize = realloc_getsize(g, ptr, newsize);
 	pthread_rwlock_unlock(&g->zoneinfo_lock);
-	if (size < 0)
-		log_call(g, LOGT_BADFREE, ptr, size);
-	return (size);
+	if (exsize == -1 || ((size_t)exsize) <= newsize)
+	{
+		if (exsize == -1)
+			log_call(g, LOGT_BADREALLOC, ptr, newsize);
+		else
+			log_call(g, LOGT_REALLOC_IP, ptr, newsize);
+		return ((exsize == -1) ? NULL : ptr);
+	}
+	newptr = do_malloc(g, newsize);
+	if (!newptr)
+		return (NULL);
+	ft_memcpy(newptr, ptr, exsize);
+	do_free(g, ptr);
+	pthread_mutex_lock(&g->print_lock);
+	log_callb(g, LOGT_REALLOC_OLD, ptr, exsize);
+	log_callb(g, LOGT_REALLOC_NEW, newptr, newsize);
+	pthread_mutex_unlock(&g->print_lock);
+	return (newptr);
 }

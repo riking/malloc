@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:58:45 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 17:49:23 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 18:56:39 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,6 @@ size_t			huge_show(t_region *page, int flags)
 {
 	show_alloc(SHOW_ZONEHDR | SHOW_LRGZONE | flags, page->page, NULL);
 	show_alloc(SHOW_ALLOCD | flags, page->page,
-			((char*)page->page) + page->size);
+			((char*)page->page) + page->item_count);
 	return (page->size);
 }
