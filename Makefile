@@ -6,7 +6,7 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/05/29 18:57:51 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/30 08:35:59 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,14 +26,16 @@ OBJS		= $(addprefix build/ft_malloc_, $(FILENAMES:.c=.o))
 OBJS		+= libft/libft.a
 
 CFLAGS		+= -Wall -Wextra -Wmissing-prototypes
-#CFLAGS		= -Wall -Wextra -Wfloat-equal -Wundef -Wint-to-pointer-cast -Wshadow -Wpointer-arith -Wcast-align -Wstrict-prototypes -Wcast-qual -Wmissing-prototypes -Wstrict-overflow=5 -Wwrite-strings -Wconversion --pedantic-errors
 CFLAGS		+= -I include/
 CFLAGS		+= -fPIC -fvisibility=hidden -g
+
 SYMBOLS		= malloc free realloc show_alloc_mem
+COMMA		= ,
+LDFLAGS		+= $(addprefix -Wl$(COMMA)-exported_symbol$(COMMA)_,$(SYMBOLS))
+LDFLAGS		+= -lpthread
 
 ifndef NO_WERROR
 	CFLAGS += -Werror
-	LDFLAGS += -Werror
 endif
 
 .PHONY: all clean fclean re
@@ -43,11 +45,8 @@ all: $(NAME)
 libft_malloc.so: libft_malloc_$(HOSTTYPE).so
 	ln -sf $< $@
 
-libft_malloc_x86_64_Linux.so: $(OBJS)
-	$(CC) -o $@ -shared -fPIC -fvisibility=hidden $(OBJS)
-
-libft_malloc_x86_64_Darwin.so: $(OBJS)
-	$(CC) -o $@ -shared $(CFLAGS) $(OBJS) $(addprefix --for-linker=-exported_symbol --for-linker=_,$(SYMBOLS)) -lpthread
+libft_malloc_$(HOSTTYPE).so: $(OBJS) libft/libft.a
+	$(CC) -o $@ -shared $(CFLAGS) $(OBJS) $(LDFLAGS)
 
 libft/libft.a:
 	make -C libft libft.a 
@@ -73,10 +72,10 @@ test1: testsrc/simple.c $(NAME)
 	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
 
 test2: testsrc/circlemalloc.c $(NAME)
-	$(CC) $(CFLAGS) -o $@ $^ -L. -l$(LIBNAME) -L./libft -lft
+	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
 
 test3: testsrc/double_free.c $(NAME)
-	$(CC) $(CFLAGS) -o $@ $^ -L. -l$(LIBNAME) -L./libft -lft
+	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
 
 test4: testsrc/alloc_way_too_much.c $(NAME)
-	$(CC) $(CFLAGS) -o $@ $^ -L. -l$(LIBNAME) -L./libft -lft
+	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
