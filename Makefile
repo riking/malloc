@@ -6,7 +6,7 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/05/29 16:08:54 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/29 18:03:41 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,7 @@ endif
 all: $(NAME)
 
 libft_malloc.so: libft_malloc_$(HOSTTYPE).so
-	ln -s $< $@
+	ln -sf $< $@
 
 libft_malloc_x86_64_Linux.so: $(OBJS)
 	$(CC) -o $@ -shared -fPIC -fvisibility=hidden $(OBJS)

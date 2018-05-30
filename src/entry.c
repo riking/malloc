@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 12:40:51 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 16:47:41 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 18:02:49 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ t_mglobal			g_mglobal = {
 	NULL, 0, 0,
 	PTHREAD_ONCE_INIT,
 	false,
-	false, false, false,
-	0, 0,
+	false,
+	0,
 };
 
 PRIVATE_VOID		malloc_setup_stub(void)
@@ -61,8 +61,6 @@ EXPORT_VOID			free(void *ptr)
 		return ;
 	size = do_free(&g_mglobal, ptr);
 	log_call(&g_mglobal, LOGT_FREE, ptr, (size_t)size);
-	if (atomic_fetch_add(&g_mglobal.pagefree_cycle, size) > SZ_HUGE * 2)
-		free_cycle(&g_mglobal, size);
 }
 
 EXPORT_VOIDSTAR		realloc(void *ptr, size_t size)

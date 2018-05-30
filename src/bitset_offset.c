@@ -6,11 +6,16 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 15:29:47 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 17:36:33 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 16:52:03 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_private.h"
+
+/*
+** note: alloc_ptr allows for idx == item_count
+** which creates a pointer to the end of the page
+*/
 
 void				*pg_alloc_ptr(t_region *page, size_t idx)
 {

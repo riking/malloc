@@ -6,15 +6,33 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 13:01:58 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 17:19:31 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 17:53:37 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_private.h"
+
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/mman.h>
 #include <unistd.h>
+
+static bool		env_bool(const char *name)
+{
+	char	*val;
+
+	val = getenv(name);
+	if (!val)
+		return (false);
+	if (ft_strcmp(val, "1") == 0)
+		return (true);
+	if (ft_strcmp(val, "t") == 0)
+		return (true);
+	if (ft_strcmp(val, "true") == 0)
+		return (true);
+	return (false);
+}
 
 void			malloc_setup(t_mglobal *g)
 {
@@ -28,6 +46,8 @@ void			malloc_setup(t_mglobal *g)
 		malloc_panicf("could not allocate initial memory: %s",
 				sys_errlist[errno]);
 	g->zoneinfo_count = (g->pagesize * 2) / sizeof(t_region);
+	if (env_bool("MALLOC_TRACE"))
+		g->enable_logging = true;
 	g->init_done = true;
 }
 

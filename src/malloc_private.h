@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/24 11:58:13 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 17:00:04 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 18:03:17 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,10 +84,7 @@ typedef struct		s_mglobal {
 	volatile bool		init_done;
 
 	bool				enable_logging;
-	bool				enable_asan;
-	bool				secure_erase;
 
-	ATOM_U64			pagefree_cycle;
 	size_t				pagesize;
 }					t_mglobal;
 
@@ -116,22 +113,38 @@ ATOM_U64			*pg_bitset_ptr(t_region *page, size_t idx);
 t_size_class		get_size_class(size_t request);
 void				*small_malloc(t_mglobal *g, t_size_class cls);
 ssize_t				small_free(t_region *page, size_t idx);
+size_t				small_show(t_region *page, int flags);
+
 void				*med_malloc(t_mglobal *g, size_t size);
 ssize_t				med_free(t_region *page, size_t idx);
+size_t				med_show(t_region *page, int flags);
+
 void				*huge_malloc(t_mglobal *g, size_t size);
 ssize_t				huge_free(t_region *page, void *ptr);
+size_t				huge_show(t_region *page, int flags);
 
 ssize_t				do_free(t_mglobal *g, void *ptr);
 t_region			*find_region(t_mglobal *g, char *ptr);
-void				free_cycle(t_mglobal *g, size_t bytes);
+void				try_pagefree(t_mglobal *g, void *ptr);
 
 void				*do_realloc(t_mglobal *g, void *ptr, size_t newsize);
-void				do_show_alloc_mem(t_mglobal *g);
+
+# define SHOW_ALLOCD (1 << 0)
+# define SHOW_ISFREE (1 << 1)
+# define SHOW_ZONEHDR (1 << 3)
+# define SHOW_SMLZONE (1 << 4)
+# define SHOW_MEDZONE (1 << 5)
+# define SHOW_LRGZONE (1 << 6)
+# define SHOW_CMPLX (1 << 7)
+
+void				show_alloc(int flags, void *ptr_start, void *ptr_end);
+size_t				do_show_alloc_mem(t_mglobal *g);
 
 typedef enum		e_log_types {
 	LOGT_MALLOC,
 	LOGT_REALLOC,
 	LOGT_FREE,
+	LOGT_BADFREE,
 }					t_log_types;
 
 void				log_call(t_mglobal *g, int which, void *ptr, size_t size);

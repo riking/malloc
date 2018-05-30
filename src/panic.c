@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 15:02:20 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 17:32:45 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 18:01:15 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 
 #define PANIC_PREFIX "*** ft_malloc[%d]: "
 #define PANIC_LINE_1 PANIC_PREFIX "panicing!\n"
-#define PANIC_LINE_FINAL PANIC_PREFIX "The program will now exit."
+#define PANIC_LINE_FINAL PANIC_PREFIX "The program will now exit.\n"
 #define PREFIX "+++ ft_malloc[%d]: "
 
 VOID_NORETURN		malloc_panicf(const char *fmt, ...)
@@ -62,9 +62,8 @@ void				log_call(t_mglobal *g, int which, void *ptr, size_t size)
 	char	buf[1024];
 	int		sz;
 
-	(void)g;
-	//if (!g->enable_logging)
-	//	return ;
+	if (!g->enable_logging && which != LOGT_BADFREE)
+		return ;
 	sz = 0;
 	if (which == LOGT_MALLOC)
 		sz = ft_snprintf(buf, 1024, PREFIX "allocated %zd bytes at %p\n",
@@ -75,5 +74,8 @@ void				log_call(t_mglobal *g, int which, void *ptr, size_t size)
 	else if (which == LOGT_FREE)
 		sz = ft_snprintf(buf, 1024, PREFIX "freed %zd bytes at %p\n",
 				getpid(), size, ptr);
+	else if (which == LOGT_BADFREE)
+		sz = ft_snprintf(buf, 1024, PANIC_PREFIX "pointer %p being freed was "
+				"not allocated\n", getpid(), ptr);
 	write(2, buf, sz);
 }

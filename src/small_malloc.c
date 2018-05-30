@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 17:40:15 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 17:24:45 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,4 +91,24 @@ ssize_t					small_free(t_region *page, size_t idx)
 					newval))
 			return (page->item_class);
 	}
+}
+
+size_t					small_show(t_region *page, int flags)
+{
+	size_t		idx;
+	size_t		total;
+
+	total = 0;
+	show_alloc(SHOW_ZONEHDR | SHOW_SMLZONE | flags, page->page, NULL);
+	idx = -1;
+	while (++idx < page->item_count)
+	{
+		if (atomic_load(pg_bitset_ptr(page, idx)) & (1 << (idx % 64)))
+		{
+			show_alloc(SHOW_ALLOCD | flags, pg_alloc_ptr(page, idx),
+					pg_alloc_ptr(page, idx + 1));
+			total += page->item_class;
+		}
+	}
+	return (total);
 }

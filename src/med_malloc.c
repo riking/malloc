@@ -6,15 +6,17 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 17:38:19 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 17:49:51 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_private.h"
 
-#define OCCUPIED 0xEAAAAAAAAAAAAAAAULL
+#define OCCUPIED 0xAAAAAAAAAAAAAAABULL
 
 /*
+** OCCUPIED has a bit pattern of 10 10 10 ... 10 11
+**
 ** max size is 32 slots - anything larger is a HUGE alloc
 ** slot count needs to be rounded up to next pow2
 **
@@ -39,10 +41,10 @@ static ssize_t			bitmask_claim(ATOM_U64 *set, t_u8 size, int max)
 	t_u64			chkmask;
 	t_u8			bitidx;
 
-	chkmask = OCCUPIED >> (64 - (size * 2));
 	maskval = atomic_load_explicit(set, memory_order_acquire);
 	if ((maskval & OCCUPIED) == OCCUPIED)
 		return (-1);
+	chkmask = (size == 32) ? OCCUPIED : OCCUPIED & ((1 << (size * 2)) - 1);
 	max = (max >= 32) ? 64 : max * 2;
 	bitidx = 0;
 	while (bitidx + size <= max)
@@ -66,7 +68,8 @@ static void				*reservem(t_region *page, int size)
 	idx = 0;
 	while (idx < page->item_count)
 	{
-		r = bitmask_claim(pg_bitset_ptr(page, idx), size, (page->item_count - idx));
+		r = bitmask_claim(pg_bitset_ptr(page, idx), size,
+				(page->item_count - idx));
 		if (r != -1)
 			break ;
 		idx += 32;
@@ -82,7 +85,7 @@ void					*med_malloc(t_mglobal *g, size_t bytes)
 	int			sz;
 	void		*mem;
 
-	sz = bytes / 256;
+	sz = CEILDIV(bytes, 256);
 	if (sz == 0)
 		sz = 1;
 	sz = round_pow2(sz);
