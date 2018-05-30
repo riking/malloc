@@ -6,7 +6,7 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/05/29 18:03:41 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/29 18:57:51 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -70,7 +70,7 @@ build/ft_malloc_%.o: src/%.c src/*.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 test1: testsrc/simple.c $(NAME)
-	$(CC) $(CFLAGS) -o $@ $^ -L. -l$(LIBNAME) -L./libft -lft
+	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
 
 test2: testsrc/circlemalloc.c $(NAME)
 	$(CC) $(CFLAGS) -o $@ $^ -L. -l$(LIBNAME) -L./libft -lft

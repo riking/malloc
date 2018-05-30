@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:23:59 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 18:52:33 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 18:59:14 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,8 @@ static ssize_t	realloc_getsize(t_mglobal *g, void *ptr, size_t newsize)
 {
 	t_region	*r;
 
+	if (!ptr)
+		return (0);
 	r = find_region(g, ptr);
 	if (!r)
 		return (-1);
