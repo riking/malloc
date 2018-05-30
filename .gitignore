@@ -1,1 +1,5 @@
+/build/
 libft/tests/
+libft_malloc.so
+libft_malloc*.so
+/test*.dSYM
