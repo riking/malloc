@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/24 11:58:13 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 18:48:08 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 09:07:05 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,6 @@ size_t				huge_show(t_region *page, int flags);
 ssize_t				do_free(t_mglobal *g, void *ptr);
 t_region			*find_region(t_mglobal *g, char *ptr);
 void				try_pagefree(t_mglobal *g, void *ptr);
-
 
 # define SHOW_ALLOCD (1 << 0)
 # define SHOW_ISFREE (1 << 1)

@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 08:48:55 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 09:39:11 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 ** TODO - randomize iteration order to reduce conflicts
 */
 
-static ssize_t			bitmask_claim(ATOM_U64 *set)
+static ssize_t			bitmask_claim(ATOM_U64 *set, int max)
 {
 	t_u64			maskval;
 	t_u64			newval;
@@ -29,6 +29,8 @@ static ssize_t			bitmask_claim(ATOM_U64 *set)
 			return (-1);
 		bitidx = __builtin_ctzl(~maskval);
 		newval = maskval | (1 << bitidx);
+		if (bitidx > max)
+			return (-1);
 		if (atomic_compare_exchange_weak(set, &maskval, newval))
 			return (bitidx);
 	}
@@ -42,7 +44,7 @@ static void				*reserve1(t_region *page)
 	idx = 0;
 	while (idx < page->item_count)
 	{
-		r = bitmask_claim(pg_bitset_ptr(page, idx));
+		r = bitmask_claim(pg_bitset_ptr(page, idx), (page->item_count - idx));
 		if (r != -1)
 			break ;
 		idx += 64;
