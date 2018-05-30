@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 15:02:20 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 18:53:13 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 12:23:08 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,9 @@
 #define PANIC_LINE_1 PANIC_PREFIX "panicing!\n"
 #define PANIC_LINE_FINAL PANIC_PREFIX "The program will now exit.\n"
 #define PREFIX "+++ ft_malloc[%d]: "
+
+#define DYLD_ALLOC_START 0x7f8000000000ULL
+#define DYLD_ALLOC_END 0x800000000000ULL
 
 VOID_NORETURN		malloc_panicf(const char *fmt, ...)
 {
@@ -51,6 +54,12 @@ VOID_NORETURN		malloc_panic(const char *str)
 	malloc_panicf("%s", str);
 }
 
+static bool			ignored_ptr(void *ptr)
+{
+	return (((uintptr_t)ptr) >= DYLD_ALLOC_START &&
+			((uintptr_t)ptr) <= DYLD_ALLOC_END);
+}
+
 void				log_call(t_mglobal *g, int which, void *ptr, size_t size)
 {
 	char	buf[1024];
@@ -69,10 +78,10 @@ void				log_call(t_mglobal *g, int which, void *ptr, size_t size)
 	else if (which == LOGT_FREE)
 		sz = ft_snprintf(buf, 1024, PREFIX "freed %zd bytes at %p\n",
 				getpid(), size, ptr);
-	else if (which == LOGT_BADFREE)
+	else if (which == LOGT_BADFREE && !ignored_ptr(ptr))
 		sz = ft_snprintf(buf, 1024, PANIC_PREFIX "pointer %p being freed was "
 				"not allocated\n", getpid(), ptr);
-	else if (which == LOGT_BADREALLOC)
+	else if (which == LOGT_BADREALLOC && !ignored_ptr(ptr))
 		sz = ft_snprintf(buf, 1024, PANIC_PREFIX "pointer %p passed to realloc"
 				"(%zd) was not allocated\n", getpid(), ptr, size);
 	write(2, buf, sz);
