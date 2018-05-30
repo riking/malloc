@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 17:05:10 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 19:38:56 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 08:50:47 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,24 +83,18 @@ static size_t	print_of_class(t_mglobal *g, t_array *ary,
 {
 	size_t		aidx;
 	size_t		total;
-	void		*ptr;
 
 	(void)g;
 	aidx = 0;
 	total = 0;
-	if (ary->item_count > 0)
-	{
-		ptr = (((t_region**)ary->ptr)[aidx])->page;
-		show_alloc(SHOW_ZONEHDR | flags, ptr, NULL);
-	}
 	while (aidx < ary->item_count)
 	{
 		if (cls == SZ_TINY_8)
-			total += small_show(((t_region**)ary->ptr)[aidx], 0);
+			total += small_show(((t_region**)ary->ptr)[aidx], flags);
 		if (cls == SZ_MEDIUM_256)
-			total += med_show(((t_region**)ary->ptr)[aidx], 0);
+			total += med_show(((t_region**)ary->ptr)[aidx], flags);
 		if (cls == SZ_HUGE)
-			total += huge_show(((t_region**)ary->ptr)[aidx], 0);
+			total += huge_show(((t_region**)ary->ptr)[aidx], flags);
 		aidx++;
 	}
 	return (total);

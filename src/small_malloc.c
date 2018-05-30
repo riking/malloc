@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 19:25:42 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 08:48:55 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,7 @@ size_t					small_show(t_region *page, int flags)
 
 	total = 0;
 	idx = -1;
+	show_alloc(SHOW_ZONEHDR | SHOW_SMLZONE | flags, page->page, NULL);
 	while (++idx < page->item_count)
 	{
 		if (atomic_load(pg_bitset_ptr(page, idx)) & (1 << (idx % 64)))

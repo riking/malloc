@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:23:59 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 18:59:14 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 09:00:05 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ void			*do_realloc(t_mglobal *g, void *ptr, size_t newsize)
 	pthread_rwlock_wrlock(&g->zoneinfo_lock);
 	exsize = realloc_getsize(g, ptr, newsize);
 	pthread_rwlock_unlock(&g->zoneinfo_lock);
-	if (exsize == -1 || ((size_t)exsize) <= newsize)
+	if (exsize == -1 || ((((size_t)exsize) <= newsize) && exsize != 0))
 	{
 		if (exsize == -1)
 			log_call(g, LOGT_BADREALLOC, ptr, newsize);

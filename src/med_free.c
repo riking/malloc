@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:55:39 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 19:27:25 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 08:49:44 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,7 @@ size_t				med_show(t_region *page, int flags)
 
 	idx = 0;
 	total = 0;
+	show_alloc(SHOW_ZONEHDR | SHOW_MEDZONE | flags, page->page, NULL);
 	while (idx < page->item_count)
 	{
 		size = med_detect_size(atomic_load(pg_bitset_ptr(page, idx)), idx % 32,
