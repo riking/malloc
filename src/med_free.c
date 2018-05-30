@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:55:39 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 08:49:44 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 09:29:04 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ static int			med_detect_size(t_u64 maskval, t_u8 offset, int max)
 
 	size = 2;
 	max = (max >= 32) ? 64 : max * 2;
+	offset = offset * 2;
 	while ((size + offset) <= max)
 	{
 		if (((maskval >> offset) & pickbits(TEST, size)) !=
@@ -104,7 +105,7 @@ size_t				med_show(t_region *page, int flags)
 	while (idx < page->item_count)
 	{
 		size = med_detect_size(atomic_load(pg_bitset_ptr(page, idx)), idx % 32,
-				(page->item_count - idx));
+				(page->item_count - (idx % 32)));
 		if (size == 0)
 		{
 			show_alloc(SHOW_ISFREE | flags,
