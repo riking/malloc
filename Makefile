@@ -6,7 +6,7 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/05/30 14:36:53 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/30 15:06:02 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,6 +30,7 @@ CFLAGS		+= -I include/
 CFLAGS		+= -fPIC -fvisibility=hidden -g
 
 SYMBOLS		= malloc free realloc show_alloc_mem show_alloc_mem_ex calloc valloc
+SYMBOLS		+= malloc_size malloc_good_size
 COMMA		= ,
 LDFLAGS		+= $(addprefix -Wl$(COMMA)-exported_symbol$(COMMA)_,$(SYMBOLS))
 LDFLAGS		+= -lpthread

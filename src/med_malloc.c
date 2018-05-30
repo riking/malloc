@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 13:19:00 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 15:01:37 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 ** 3 = start of allocation; 2 = continuation of allocation, 0 = free
 */
 
-static int				get_slot_count(size_t size)
+int						med_slot_count(size_t size)
 {
 	size = CEILDIV(size, 256);
 	size--;
@@ -86,7 +86,7 @@ void					*med_malloc(t_mglobal *g, size_t bytes)
 	int			sz;
 	void		*mem;
 
-	sz = get_slot_count(bytes);
+	sz = med_slot_count(bytes);
 	while (1)
 	{
 		pthread_rwlock_rdlock(&g->zoneinfo_lock);

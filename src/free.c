@@ -6,13 +6,13 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:23:59 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 13:08:10 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 15:04:52 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_private.h"
 
-t_region		*find_region(t_mglobal *g, char *ptr)
+t_region		*find_region(t_mglobal *g, const char *ptr)
 {
 	size_t		idx;
 	t_region	*found;
@@ -41,7 +41,7 @@ ssize_t			do_free(t_mglobal *g, void *ptr)
 
 	size = -1;
 	page_idx = -1;
-	pthread_rwlock_rdlock(&g->zoneinfo_lock);
+	pthread_rwlock_wrlock(&g->zoneinfo_lock);
 	r = find_region(g, ptr);
 	if (r)
 	{
@@ -65,7 +65,7 @@ ssize_t			do_free(t_mglobal *g, void *ptr)
 ** of HUGE reallocs
 */
 
-static ssize_t	realloc_getsize(t_mglobal *g, void *ptr, size_t newsize)
+static ssize_t	realloc_getsize(t_mglobal *g, const void *ptr, size_t newsize)
 {
 	t_region	*r;
 
@@ -80,7 +80,7 @@ static ssize_t	realloc_getsize(t_mglobal *g, void *ptr, size_t newsize)
 		return (med_getsize(r, ptr));
 	if (r->item_class == SZ_HUGE)
 	{
-		if (newsize <= r->size)
+		if (newsize != 0 && newsize <= r->size)
 			r->item_count = newsize;
 		return (r->size);
 	}
@@ -118,4 +118,16 @@ void			*do_realloc(t_mglobal *g, void *ptr, size_t newsize)
 	log_callb(g, LOGT_REALLOC_NEW, newptr, newsize);
 	pthread_mutex_unlock(&g->print_lock);
 	return (newptr);
+}
+
+size_t				do_mallocsize(t_mglobal *g, const void *ptr)
+{
+	ssize_t		exsize;
+
+	pthread_rwlock_wrlock(&g->zoneinfo_lock);
+	exsize = realloc_getsize(g, ptr, 0);
+	pthread_rwlock_unlock(&g->zoneinfo_lock);
+	if (exsize == -1)
+		return (0);
+	return (exsize);
 }

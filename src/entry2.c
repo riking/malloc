@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/30 11:38:05 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 14:00:09 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 15:03:40 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,18 +46,6 @@ EXPORT_VOIDSTAR		valloc(size_t size)
 	return (newptr);
 }
 
-EXPORT_VOIDSTAR		reallocf(void *ptr, size_t size)
-{
-	void	*newptr;
-
-	if (!ACCESS_ONCE(g_mglobal.init_done))
-		pthread_once(&g_mglobal.init_once, malloc_setup_stub);
-	newptr = do_realloc(&g_mglobal, ptr, size);
-	if (!newptr)
-		errno = ENOMEM;
-	return (newptr);
-}
-
 EXPORT_VOID			show_alloc_mem_ex(void)
 {
 	if (!ACCESS_ONCE(g_mglobal.init_done))
@@ -65,4 +53,11 @@ EXPORT_VOID			show_alloc_mem_ex(void)
 	pthread_rwlock_rdlock(&g_mglobal.zoneinfo_lock);
 	do_show_alloc_mem(&g_mglobal, SHOW_CMPLX);
 	pthread_rwlock_unlock(&g_mglobal.zoneinfo_lock);
+}
+
+EXPORT_SIZET		malloc_size(const void *ptr)
+{
+	if (!ACCESS_ONCE(g_mglobal.init_done))
+		pthread_once(&g_mglobal.init_once, malloc_setup_stub);
+	return (do_mallocsize(&g_mglobal, ptr));
 }

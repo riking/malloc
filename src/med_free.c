@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:55:39 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 13:28:54 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 15:05:19 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ static int			med_detect_size(t_u64 maskval, t_u8 offset, int max)
 	return (size_bits / 2);
 }
 
-ssize_t				med_getsize(t_region *page, void *ptr)
+ssize_t				med_getsize(t_region *page, const void *ptr)
 {
 	t_u64	maskval;
 	size_t	idx;

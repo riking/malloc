@@ -6,11 +6,12 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 15:29:47 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 16:52:03 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 15:05:35 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_private.h"
+#include "malloc_api.h"
 
 /*
 ** note: alloc_ptr allows for idx == item_count
@@ -30,7 +31,7 @@ void				*pg_alloc_ptr(t_region *page, size_t idx)
 	return ((void*)ptr);
 }
 
-size_t				pg_alloc_idx(t_region *page, void *ptr)
+size_t				pg_alloc_idx(t_region *page, const void *ptr)
 {
 	ptrdiff_t		offset;
 
@@ -62,4 +63,16 @@ t_size_class		get_size_class(size_t size)
 	if (size < SZ_HUGE)
 		return (SZ_MEDIUM_256);
 	return (SZ_HUGE);
+}
+
+EXPORT_SIZET		malloc_good_size(size_t size)
+{
+	t_size_class	cls;
+
+	cls = get_size_class(size);
+	if (cls == SZ_HUGE)
+		return (size);
+	if (cls == SZ_MEDIUM_256)
+		return (med_slot_count(size) * SZ_MEDIUM_256);
+	return (cls);
 }

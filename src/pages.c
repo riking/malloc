@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 14:10:12 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 14:20:07 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 15:18:51 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ const static t_pagesizes	g_pagesize_dfns[] = {
 #define RET_SKIP 0
 #define RET_ERROR -1
 
-static int					grab_page(t_region *r, const t_pagesizes *dfn)
+static int					grab_page(t_mglobal *g, t_region *r,
+			const t_pagesizes *dfn)
 {
 	if (r->item_class == SZ_FREE && r->size == dfn->size)
 	{
@@ -50,6 +51,7 @@ static int					grab_page(t_region *r, const t_pagesizes *dfn)
 	r->item_count = dfn->item_count;
 	r->alloc_count = 0;
 	r->bitset_bytes = dfn->bitset_bytes;
+	log_callb(g, LOGT_MOREPAGES, r->page, dfn->item_class);
 	return (RET_FOUND);
 }
 
@@ -68,7 +70,7 @@ int							more_pages(t_mglobal *g, t_size_class cls)
 		idx = 0;
 		while (idx < g->zoneinfo_count)
 		{
-			r = grab_page(&g->zoneinfo[idx], dfn);
+			r = grab_page(g, &g->zoneinfo[idx], dfn);
 			if (r)
 				break ;
 			idx++;
@@ -93,6 +95,7 @@ void						try_pagefree(t_mglobal *g, ssize_t page_idx)
 		page = &g->zoneinfo[page_idx];
 		if (page->alloc_count == 0 && page->item_class >= SZ_MIN_VALID)
 		{
+			log_callb(g, LOGT_LESSPAGES, page->page, page->item_class);
 			munmap(page->page, page->size);
 			page->page = NULL;
 			page->size = 0;
