@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 15:13:04 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 17:26:55 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 19:01:24 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,6 @@ int				main(void)
 	tmphead = head;
 	head = head->next;
 	ft_lstdelone(&tmphead, deldata);
-	ft_lstdel(&head, deldata);
 	show_alloc_mem();
+	ft_lstdel(&head, deldata);
 }

@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 18:55:49 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 19:34:43 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ static ssize_t			bitmask_claim(ATOM_U64 *set, t_u8 size, int max)
 	maskval = atomic_load_explicit(set, memory_order_acquire);
 	if ((maskval & OCCUPIED) == OCCUPIED)
 		return (-1);
-	chkmask = (size == 32) ? OCCUPIED : OCCUPIED & ((1 << (size * 2)) - 1);
+	chkmask = (size == 32) ? OCCUPIED : OCCUPIED & ((1ULL << (size * 2)) - 1);
 	max = (max >= 32) ? 64 : max * 2;
 	bitidx = 0;
 	while (bitidx + size <= max)

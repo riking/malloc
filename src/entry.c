@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 12:40:51 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 18:53:55 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/29 19:38:51 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,5 +75,7 @@ EXPORT_VOID			show_alloc_mem(void)
 {
 	if (!ACCESS_ONCE(g_mglobal.init_done))
 		pthread_once(&g_mglobal.init_once, malloc_setup_stub);
+	pthread_rwlock_rdlock(&g_mglobal.zoneinfo_lock);
 	do_show_alloc_mem(&g_mglobal);
+	pthread_rwlock_unlock(&g_mglobal.zoneinfo_lock);
 }
