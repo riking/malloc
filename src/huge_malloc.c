@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:58:45 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 18:56:39 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 11:59:29 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ void			*huge_malloc(t_mglobal *g, size_t size)
 		{
 			if (g->zoneinfo[idx].item_class == SZ_DECOMMIT)
 				page = &g->zoneinfo[idx];
+			idx++;
 		}
 		if (page)
 			ptr = grab_page(g, page, size);

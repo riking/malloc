@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:55:39 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 09:29:04 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 12:16:47 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,58 +38,61 @@ static t_u64		pickbits(t_u64 mask, int bits)
 
 static int			med_detect_size(t_u64 maskval, t_u8 offset, int max)
 {
-	int		size;
+	int		size_bits;
+	int		off_bits;
 
-	size = 2;
+	size_bits = 2;
 	max = (max >= 32) ? 64 : max * 2;
-	offset = offset * 2;
-	while ((size + offset) <= max)
+	off_bits = offset * 2;
+	while ((size_bits + off_bits) <= max)
 	{
-		if (((maskval >> offset) & pickbits(TEST, size)) !=
-					pickbits(OCCUPIED, size))
+		if (((maskval >> off_bits) & pickbits(TEST, size_bits)) !=
+					pickbits(OCCUPIED, size_bits))
 			break ;
-		size = size * 2;
+		size_bits = size_bits * 2;
 	}
-	size = size / 2;
-	return (size / 2);
+	size_bits = size_bits / 2;
+	return (size_bits / 2);
 }
 
 ssize_t				med_getsize(t_region *page, void *ptr)
 {
 	t_u64	maskval;
 	size_t	idx;
-	int		size;
+	int		size_slots;
 
 	idx = pg_alloc_idx(page, ptr);
 	maskval = atomic_load(pg_bitset_ptr(page, idx));
-	size = med_detect_size(maskval, idx % 32, (page->item_count - idx));
-	if (size == 0)
+	size_slots = med_detect_size(maskval, idx % 32,
+			(page->item_count - (idx & ~31)));
+	if (size_slots == 0)
 		return (-1);
-	return (size * SZ_MEDIUM_256);
+	return (size_slots * SZ_MEDIUM_256);
 }
 
-ssize_t				med_free(t_region *page, size_t idx)
+ssize_t				med_free(t_region *page, size_t idx_slots)
 {
 	t_u64	maskval;
 	t_u64	clearmask;
 	t_u64	newmask;
-	int		size;
+	int		size_slots;
 
-	maskval = atomic_load(pg_bitset_ptr(page, idx));
-	size = med_detect_size(maskval, idx % 32, (page->item_count - idx));
-	if (size == 0)
+	maskval = atomic_load(pg_bitset_ptr(page, idx_slots));
+	size_slots = med_detect_size(maskval, idx_slots % 32,
+			(page->item_count - (idx_slots & ~31)));
+	if (size_slots == 0)
 		return (-1);
-	clearmask = pickbits(TEST, size * 2) << ((idx % 32) * 2);
+	clearmask = pickbits(TEST, size_slots * 2) << ((idx_slots % 32) * 2);
 	while (1)
 	{
 		if ((maskval & clearmask) !=
-				(pickbits(OCCUPIED, size * 2) << ((idx % 32) * 2)))
+				(pickbits(OCCUPIED, size_slots * 2) << ((idx_slots % 32) * 2)))
 			malloc_panicf("medium region @%p corrupted bitmask - %zX free@%zd",
-					page, maskval, idx);
+					page, maskval, idx_slots);
 		newmask = maskval & ~clearmask;
-		if (atomic_compare_exchange_strong(pg_bitset_ptr(page, idx), &maskval,
-					newmask))
-			return (size * SZ_MEDIUM_256);
+		if (atomic_compare_exchange_strong(pg_bitset_ptr(page, idx_slots),
+					&maskval, newmask))
+			return (size_slots * SZ_MEDIUM_256);
 	}
 }
 
@@ -105,7 +108,7 @@ size_t				med_show(t_region *page, int flags)
 	while (idx < page->item_count)
 	{
 		size = med_detect_size(atomic_load(pg_bitset_ptr(page, idx)), idx % 32,
-				(page->item_count - (idx % 32)));
+				(page->item_count - (idx & ~31)));
 		if (size == 0)
 		{
 			show_alloc(SHOW_ISFREE | flags,

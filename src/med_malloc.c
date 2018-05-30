@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 09:51:17 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 12:16:28 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ static void				*reservem(t_region *page, int size)
 	while (idx < page->item_count)
 	{
 		r = bitmask_claim(pg_bitset_ptr(page, idx), size,
-				(((ssize_t)page->item_count) - (idx & ~(32 - 1))));
+				(((ssize_t)page->item_count) - (idx & ~31)));
 		if (r != -1)
 			break ;
 		idx += 32;

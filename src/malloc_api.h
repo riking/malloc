@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/09 17:46:31 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 14:57:28 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 11:42:07 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,15 @@
 
 # include <stddef.h>
 
+extern t_mglobal		g_mglobal;
+
 PRIVATE_VOID			malloc_setup_stub(void);
 EXPORT_VOIDSTAR			malloc(size_t size);
+EXPORT_VOIDSTAR			calloc(size_t a, size_t b);
+EXPORT_VOIDSTAR			valloc(size_t size);
 EXPORT_VOID				free(void *ptr);
 EXPORT_VOIDSTAR			realloc(void *ptr, size_t size);
+EXPORT_VOIDSTAR			reallocf(void *ptr, size_t size);
 EXPORT_VOID				show_alloc_mem(void);
 
 #endif

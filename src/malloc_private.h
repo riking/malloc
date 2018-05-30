@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/24 11:58:13 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 09:07:05 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 11:41:44 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ ATOM_U64			*pg_bitset_ptr(t_region *page, size_t idx);
 t_size_class		get_size_class(size_t request);
 
 void				*do_malloc(t_mglobal *g, size_t size);
-void				*do_realloc(t_mglobal *g, void *ptr, size_t newsize);
+void				*do_calloc(t_mglobal *g, size_t size);
 
 void				*small_malloc(t_mglobal *g, t_size_class cls);
 ssize_t				small_free(t_region *page, size_t idx);
@@ -132,6 +132,8 @@ ssize_t				huge_free(t_region *page, void *ptr);
 size_t				huge_show(t_region *page, int flags);
 
 ssize_t				do_free(t_mglobal *g, void *ptr);
+void				*do_realloc(t_mglobal *g, void *ptr, size_t newsize);
+void				*do_reallocf(t_mglobal *g, void *ptr, size_t newsize);
 t_region			*find_region(t_mglobal *g, char *ptr);
 void				try_pagefree(t_mglobal *g, void *ptr);
 

@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 09:39:11 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 12:15:57 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,8 @@ static void				*reserve1(t_region *page)
 	idx = 0;
 	while (idx < page->item_count)
 	{
-		r = bitmask_claim(pg_bitset_ptr(page, idx), (page->item_count - idx));
+		r = bitmask_claim(pg_bitset_ptr(page, idx),
+				(page->item_count - (idx & ~63)));
 		if (r != -1)
 			break ;
 		idx += 64;

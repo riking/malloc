@@ -1,64 +1,52 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   entry.c                                            :+:      :+:    :+:   */
+/*   entry2.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/05/23 12:40:51 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 11:44:14 by kyork            ###   ########.fr       */
+/*   Created: 2018/05/30 11:38:05 by kyork             #+#    #+#             */
+/*   Updated: 2018/05/30 11:44:16 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_private.h"
 #include "malloc_api.h"
-
 #include <errno.h>
 
-t_mglobal			g_mglobal = {
-	PTHREAD_RWLOCK_INITIALIZER,
-	NULL, 0, 0,
-	PTHREAD_MUTEX_INITIALIZER,
-	PTHREAD_ONCE_INIT,
-	false,
-	false,
-	0,
-};
-
-PRIVATE_VOID		malloc_setup_stub(void)
+EXPORT_VOIDSTAR		calloc(size_t a, size_t b)
 {
-	malloc_setup(&g_mglobal);
-}
+	size_t		size;
+	void		*newptr;
 
-EXPORT_VOIDSTAR		malloc(size_t size)
-{
-	void			*newptr;
-
+	if (__builtin_mul_overflow(a, b, &size))
+	{
+		errno = ENOMEM;
+		return (NULL);
+	}
 	if (!ACCESS_ONCE(g_mglobal.init_done))
 		pthread_once(&g_mglobal.init_once, malloc_setup_stub);
-	newptr = do_malloc(&g_mglobal, size);
+	newptr = do_calloc(&g_mglobal, size);
 	log_call(&g_mglobal, LOGT_MALLOC, newptr, size);
 	if (!newptr)
 		errno = ENOMEM;
 	return (newptr);
 }
 
-EXPORT_VOID			free(void *ptr)
+EXPORT_VOIDSTAR		valloc(size_t size)
 {
-	ssize_t		size;
+	void		*newptr;
 
 	if (!ACCESS_ONCE(g_mglobal.init_done))
 		pthread_once(&g_mglobal.init_once, malloc_setup_stub);
-	if (!ptr)
-		return ;
-	size = do_free(&g_mglobal, ptr);
-	if (size < 0)
-		log_call(&g_mglobal, LOGT_BADFREE, ptr, (size_t)size);
-	else
-		log_call(&g_mglobal, LOGT_FREE, ptr, (size_t)size);
+	newptr = huge_malloc(&g_mglobal, size);
+	log_call(&g_mglobal, LOGT_MALLOC, newptr, size);
+	if (!newptr)
+		errno = ENOMEM;
+	return (newptr);
 }
 
-EXPORT_VOIDSTAR		realloc(void *ptr, size_t size)
+EXPORT_VOIDSTAR		reallocf(void *ptr, size_t size)
 {
 	void	*newptr;
 
@@ -68,13 +56,4 @@ EXPORT_VOIDSTAR		realloc(void *ptr, size_t size)
 	if (!newptr)
 		errno = ENOMEM;
 	return (newptr);
-}
-
-EXPORT_VOID			show_alloc_mem(void)
-{
-	if (!ACCESS_ONCE(g_mglobal.init_done))
-		pthread_once(&g_mglobal.init_once, malloc_setup_stub);
-	pthread_rwlock_rdlock(&g_mglobal.zoneinfo_lock);
-	do_show_alloc_mem(&g_mglobal);
-	pthread_rwlock_unlock(&g_mglobal.zoneinfo_lock);
 }

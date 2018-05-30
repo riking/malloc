@@ -6,7 +6,7 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/05/30 10:17:18 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/30 12:00:46 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ endif
 NAME		= libft_malloc.so
 LIBNAME		= ft_malloc_$(HOSTTYPE)
 
-FILENAMES	+= entry.c setup.c panic.c free.c
+FILENAMES	+= entry.c entry2.c setup.c panic.c free.c calloc.c
 FILENAMES	+= pages.c small_malloc.c bitset_offset.c
 FILENAMES	+= med_malloc.c med_free.c
 FILENAMES	+= huge_malloc.c show_mem.c
@@ -29,7 +29,7 @@ CFLAGS		+= -Wall -Wextra -Wmissing-prototypes
 CFLAGS		+= -I include/
 CFLAGS		+= -fPIC -fvisibility=hidden -g
 
-SYMBOLS		= malloc free realloc show_alloc_mem
+SYMBOLS		= malloc free realloc show_alloc_mem calloc valloc
 COMMA		= ,
 LDFLAGS		+= $(addprefix -Wl$(COMMA)-exported_symbol$(COMMA)_,$(SYMBOLS))
 LDFLAGS		+= -lpthread
