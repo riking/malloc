@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/29 15:47:54 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 12:33:46 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 14:02:50 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,10 @@
 #include <libft.h>
 #include <ft_printf.h>
 
-const static int	g_sizes[] = {0, 3, 8, 16, 21, 1024, 4096, 70000};
+const static int	g_sizes[] = {3, 8, 16, 64, 256, 1024, 4096, 70000};
 
 void			show_alloc_mem(void);
+void			show_alloc_mem_ex(void);
 volatile int	g_stop;
 
 static void		*worker(void* arg)
@@ -61,7 +62,7 @@ int				main(void)
 	pthread_create(&threads[3], NULL, &worker, (void*)(uintptr_t)4);
 	sleep(3);
 	g_stop = 1;
-	show_alloc_mem();
+	show_alloc_mem_ex();
 	pthread_join(threads[0], NULL);
 	pthread_join(threads[1], NULL);
 	pthread_join(threads[2], NULL);

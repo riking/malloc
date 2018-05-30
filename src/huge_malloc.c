@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:58:45 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 11:59:29 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 13:55:59 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ static void		*grab_page(t_mglobal *g, t_region *page, size_t osize)
 	page->size = roundsize;
 	page->item_class = SZ_HUGE;
 	page->item_count = osize;
+	page->alloc_count = 1;
 	page->bitset_bytes = 0;
 	return (page->page);
 }
@@ -68,18 +69,15 @@ ssize_t			huge_free(t_region *page, void *ptr)
 
 	if (page->page != ptr)
 		return (-1);
-	munmap(page->page, page->size);
-	page->page = NULL;
 	size = page->size;
-	page->size = 0;
-	page->item_class = SZ_DECOMMIT;
+	atomic_store(&page->alloc_count, 0);
 	return (size);
 }
 
-size_t			huge_show(t_region *page, int flags)
+size_t			huge_show(t_mglobal *g, t_region *page, int flags)
 {
-	show_alloc(SHOW_ZONEHDR | SHOW_LRGZONE | flags, page->page, NULL);
-	show_alloc(SHOW_ALLOCD | flags, page->page,
+	show_alloc(g, SHOW_ZONEHDR | flags, page->page, NULL);
+	show_alloc(g, SHOW_ALLOCD | flags, page->page,
 			((char*)page->page) + page->item_count);
 	return (page->size);
 }

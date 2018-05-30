@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/30 11:38:05 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 11:44:16 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 14:00:09 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,4 +56,13 @@ EXPORT_VOIDSTAR		reallocf(void *ptr, size_t size)
 	if (!newptr)
 		errno = ENOMEM;
 	return (newptr);
+}
+
+EXPORT_VOID			show_alloc_mem_ex(void)
+{
+	if (!ACCESS_ONCE(g_mglobal.init_done))
+		pthread_once(&g_mglobal.init_once, malloc_setup_stub);
+	pthread_rwlock_rdlock(&g_mglobal.zoneinfo_lock);
+	do_show_alloc_mem(&g_mglobal, SHOW_CMPLX);
+	pthread_rwlock_unlock(&g_mglobal.zoneinfo_lock);
 }

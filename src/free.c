@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:23:59 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 12:06:34 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 13:08:10 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,28 +36,27 @@ t_region		*find_region(t_mglobal *g, char *ptr)
 ssize_t			do_free(t_mglobal *g, void *ptr)
 {
 	t_region	*r;
+	ssize_t		page_idx;
 	ssize_t		size;
 
+	size = -1;
+	page_idx = -1;
 	pthread_rwlock_rdlock(&g->zoneinfo_lock);
 	r = find_region(g, ptr);
 	if (r)
 	{
 		if (r->item_class == SZ_HUGE)
-		{
-			pthread_rwlock_unlock(&g->zoneinfo_lock);
-			pthread_rwlock_wrlock(&g->zoneinfo_lock);
-			size = huge_free(find_region(g, ptr), ptr);
-		}
+			size = huge_free(r, ptr);
 		else if (r->item_class == SZ_TINY_8 || r->item_class == SZ_TINY_64)
 			size = small_free(r, pg_alloc_idx(r, ptr));
 		else if (r->item_class == SZ_MEDIUM_256)
 			size = med_free(r, pg_alloc_idx(r, ptr));
-		else
-			malloc_panic("find_region returned invalid region");
+		page_idx = (r - &g->zoneinfo[0]);
 	}
 	pthread_rwlock_unlock(&g->zoneinfo_lock);
 	if (!r)
 		return (-1);
+	try_pagefree(g, page_idx);
 	return (size);
 }
 
@@ -113,33 +112,6 @@ void			*do_realloc(t_mglobal *g, void *ptr, size_t newsize)
 	if (!newptr)
 		return (NULL);
 	ft_memcpy(newptr, ptr, exsize);
-	do_free(g, ptr);
-	pthread_mutex_lock(&g->print_lock);
-	log_callb(g, LOGT_REALLOC_OLD, ptr, exsize);
-	log_callb(g, LOGT_REALLOC_NEW, newptr, newsize);
-	pthread_mutex_unlock(&g->print_lock);
-	return (newptr);
-}
-
-void			*do_reallocf(t_mglobal *g, void *ptr, size_t newsize)
-{
-	ssize_t		exsize;
-	void		*newptr;
-
-	pthread_rwlock_wrlock(&g->zoneinfo_lock);
-	exsize = realloc_getsize(g, ptr, newsize);
-	pthread_rwlock_unlock(&g->zoneinfo_lock);
-	if (exsize == -1 || (newsize <= ((size_t)exsize)))
-	{
-		if (exsize == -1)
-			log_call(g, LOGT_BADREALLOC, ptr, newsize);
-		else
-			log_call(g, LOGT_REALLOC_IP, ptr, newsize);
-		return ((exsize == -1) ? NULL : ptr);
-	}
-	newptr = do_malloc(g, newsize);
-	if (newptr)
-		ft_memcpy(newptr, ptr, exsize);
 	do_free(g, ptr);
 	pthread_mutex_lock(&g->print_lock);
 	log_callb(g, LOGT_REALLOC_OLD, ptr, exsize);

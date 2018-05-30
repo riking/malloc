@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 14:10:12 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/23 15:40:46 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 14:05:10 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 const static t_pagesizes	g_pagesize_dfns[] = {
 	{SZ_TINY_8, 8192, 1008, 128},
 	{SZ_TINY_64, 8192, 127, 64},
-	{SZ_MEDIUM_256, 32768, 127, 256},
+	{SZ_MEDIUM_256, 65536, 255, 256},
 };
 
 #define RET_FOUND 1
@@ -45,6 +45,7 @@ static int					grab_page(t_region *r, const t_pagesizes *dfn)
 	r->size = dfn->size;
 	r->item_class = dfn->item_class;
 	r->item_count = dfn->item_count;
+	r->alloc_count = 0;
 	r->bitset_bytes = dfn->bitset_bytes;
 	return (RET_FOUND);
 }
@@ -75,4 +76,28 @@ int							more_pages(t_mglobal *g, t_size_class cls)
 		if (!more_zoneinfo(g))
 			return (-1);
 	}
+}
+
+#include <ft_printf.h>
+#include <unistd.h>
+void						try_pagefree(t_mglobal *g, ssize_t page_idx)
+{
+	t_region	*page;
+
+	if (page_idx < 0)
+		return ;
+	pthread_rwlock_wrlock(&g->zoneinfo_lock);
+	if (((size_t)page_idx) < g->zoneinfo_count)
+	{
+		page = &g->zoneinfo[page_idx];
+		if (page->alloc_count == 0 && page->item_class >= SZ_MIN_VALID)
+		{
+			munmap(page->page, page->size);
+			page->page = NULL;
+			page->size = 0;
+			page->alloc_count = 0;
+			page->item_class = SZ_DECOMMIT;
+		}
+	}
+	pthread_rwlock_unlock(&g->zoneinfo_lock);
 }

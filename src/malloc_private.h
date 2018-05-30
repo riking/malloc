@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/24 11:58:13 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 12:35:13 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 14:09:53 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # define CEILDIV(x, y) (((x) + (y) - 1) / (y))
 
 # define ATOM_U64 _Atomic t_u64
+# define ATOM_S16 _Atomic t_s16
 # define VOID_NORETURN void __attribute__((noreturn))
 
 # define XPROT_RW (PROT_READ | PROT_WRITE)
@@ -70,6 +71,7 @@ typedef struct		s_region {
 	void				*page;
 	size_t				item_count;
 	t_s16				item_class;
+	ATOM_S16			alloc_count;
 	t_s32				bitset_bytes;
 }					t_region;
 
@@ -87,6 +89,7 @@ typedef struct		s_mglobal {
 	pthread_once_t		init_once;
 	volatile bool		init_done;
 
+	int					show_temp;
 	bool				enable_logging;
 
 	size_t				pagesize;
@@ -121,33 +124,37 @@ void				*do_calloc(t_mglobal *g, size_t size);
 
 void				*small_malloc(t_mglobal *g, t_size_class cls);
 ssize_t				small_free(t_region *page, size_t idx);
-size_t				small_show(t_region *page, int flags);
+size_t				small_show(t_mglobal *g, t_region *page, int flags);
 
 void				*med_malloc(t_mglobal *g, size_t size);
 ssize_t				med_getsize(t_region *page, void *ptr);
 ssize_t				med_free(t_region *page, size_t idx);
-size_t				med_show(t_region *page, int flags);
+size_t				med_show(t_mglobal *g, t_region *page, int flags);
 
 void				*huge_malloc(t_mglobal *g, size_t size);
 ssize_t				huge_free(t_region *page, void *ptr);
-size_t				huge_show(t_region *page, int flags);
+size_t				huge_show(t_mglobal *g, t_region *page, int flags);
 
 ssize_t				do_free(t_mglobal *g, void *ptr);
 void				*do_realloc(t_mglobal *g, void *ptr, size_t newsize);
 void				*do_reallocf(t_mglobal *g, void *ptr, size_t newsize);
 t_region			*find_region(t_mglobal *g, char *ptr);
-void				try_pagefree(t_mglobal *g, void *ptr);
+void				try_pagefree(t_mglobal *g, ssize_t page_idx);
 
 # define SHOW_ALLOCD (1 << 0)
 # define SHOW_ISFREE (1 << 1)
+# define SHOW_TOTAL (1 << 2)
 # define SHOW_ZONEHDR (1 << 3)
 # define SHOW_SMLZONE (1 << 4)
 # define SHOW_MEDZONE (1 << 5)
 # define SHOW_LRGZONE (1 << 6)
 # define SHOW_CMPLX (1 << 7)
 
-void				show_alloc(int flags, void *ptr_start, void *ptr_end);
-size_t				do_show_alloc_mem(t_mglobal *g);
+void				show_alloc(t_mglobal *g, int flags,
+						void *ptr_start, void *ptr_end);
+void				show_ex(t_mglobal *g, int flags,
+						void *ptr_start, void *ptr_end);
+size_t				do_show_alloc_mem(t_mglobal *g, int flags);
 
 typedef enum		e_log_types {
 	LOGT_MALLOC,

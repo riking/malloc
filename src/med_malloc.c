@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 12:16:28 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 13:19:00 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,9 @@
 ** 3 = start of allocation; 2 = continuation of allocation, 0 = free
 */
 
-static int				round_pow2(t_u8 size)
+static int				get_slot_count(size_t size)
 {
+	size = CEILDIV(size, 256);
 	size--;
 	size |= size >> 1;
 	size |= size >> 2;
@@ -85,20 +86,19 @@ void					*med_malloc(t_mglobal *g, size_t bytes)
 	int			sz;
 	void		*mem;
 
-	sz = CEILDIV(bytes, 256);
-	if (sz == 0)
-		sz = 1;
-	sz = round_pow2(sz);
+	sz = get_slot_count(bytes);
 	while (1)
 	{
 		pthread_rwlock_rdlock(&g->zoneinfo_lock);
 		idx = -1;
 		mem = NULL;
-		while (++idx < g->zoneinfo_count && !mem)
+		while (!mem && ++idx < g->zoneinfo_count)
 		{
 			if (g->zoneinfo[idx].item_class == SZ_MEDIUM_256)
 				mem = reservem(&g->zoneinfo[idx], sz);
 		}
+		if (mem)
+			atomic_fetch_add(&g->zoneinfo[idx].alloc_count, 1);
 		pthread_rwlock_unlock(&g->zoneinfo_lock);
 		if (mem)
 			return (mem);

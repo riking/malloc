@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:55:39 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 12:16:47 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 13:28:54 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,16 +87,18 @@ ssize_t				med_free(t_region *page, size_t idx_slots)
 	{
 		if ((maskval & clearmask) !=
 				(pickbits(OCCUPIED, size_slots * 2) << ((idx_slots % 32) * 2)))
-			malloc_panicf("medium region @%p corrupted bitmask - %zX free@%zd",
-					page, maskval, idx_slots);
+			malloc_panic("medium region has corrupted bitmask");
 		newmask = maskval & ~clearmask;
 		if (atomic_compare_exchange_strong(pg_bitset_ptr(page, idx_slots),
 					&maskval, newmask))
+		{
+			atomic_fetch_add(&page->alloc_count, -1);
 			return (size_slots * SZ_MEDIUM_256);
+		}
 	}
 }
 
-size_t				med_show(t_region *page, int flags)
+size_t				med_show(t_mglobal *g, t_region *page, int flags)
 {
 	t_u8	idx;
 	int		size;
@@ -104,19 +106,19 @@ size_t				med_show(t_region *page, int flags)
 
 	idx = 0;
 	total = 0;
-	show_alloc(SHOW_ZONEHDR | SHOW_MEDZONE | flags, page->page, NULL);
+	show_alloc(g, SHOW_ZONEHDR | flags, page->page, NULL);
 	while (idx < page->item_count)
 	{
 		size = med_detect_size(atomic_load(pg_bitset_ptr(page, idx)), idx % 32,
 				(page->item_count - (idx & ~31)));
 		if (size == 0)
 		{
-			show_alloc(SHOW_ISFREE | flags,
+			show_alloc(g, SHOW_ISFREE | flags,
 					pg_alloc_ptr(page, idx), pg_alloc_ptr(page, idx + 1));
 			idx++;
 			continue ;
 		}
-		show_alloc(SHOW_ALLOCD | flags,
+		show_alloc(g, SHOW_ALLOCD | flags,
 				pg_alloc_ptr(page, idx), pg_alloc_ptr(page, idx + size));
 		total += SZ_MEDIUM_256 * size;
 		idx += size;

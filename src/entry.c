@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 12:40:51 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 11:44:14 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 14:00:15 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ t_mglobal			g_mglobal = {
 	PTHREAD_MUTEX_INITIALIZER,
 	PTHREAD_ONCE_INIT,
 	false,
+	0,
 	false,
 	0,
 };
@@ -75,6 +76,6 @@ EXPORT_VOID			show_alloc_mem(void)
 	if (!ACCESS_ONCE(g_mglobal.init_done))
 		pthread_once(&g_mglobal.init_once, malloc_setup_stub);
 	pthread_rwlock_rdlock(&g_mglobal.zoneinfo_lock);
-	do_show_alloc_mem(&g_mglobal);
+	do_show_alloc_mem(&g_mglobal, 0);
 	pthread_rwlock_unlock(&g_mglobal.zoneinfo_lock);
 }

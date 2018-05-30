@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 17:05:10 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 08:50:47 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 14:10:54 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,30 +17,27 @@
 
 #define PLUS_STR32 "++++++++++++++++++++++++++++++++"
 
-void			show_alloc(int flags, void *start, void *end)
+void			show_alloc(t_mglobal *g, int flags, void *start, void *end)
 {
 	char		buf[50];
 	int			sz;
 
-	if ((flags & SHOW_ALLOCD))
+	sz = 0;
+	if (flags & SHOW_ZONEHDR)
 	{
-		sz = ft_snprintf(buf, 50, "%p - %p : ", start, end);
-		write(1, buf, sz);
-		sz = ft_snprintf(buf, 50, "%zd bytes\n", ((char*)end) - ((char*)start));
-		write(1, buf, sz);
-	}
-	else if ((flags & SHOW_ZONEHDR))
-	{
+		if (g->show_temp)
+			write(1, "\n", 1);
+		g->show_temp = 0;
 		if ((flags & SHOW_SMLZONE))
 			sz = ft_snprintf(buf, 50, "TINY : %p\n", start);
 		else if ((flags & SHOW_MEDZONE))
 			sz = ft_snprintf(buf, 50, "SMALL : %p\n", start);
 		else if ((flags & SHOW_LRGZONE))
 			sz = ft_snprintf(buf, 50, "LARGE : %p\n", start);
-		else
-			malloc_panic("show-alloc bad flags");
 		write(1, buf, sz);
 	}
+	else
+		show_ex(g, flags, start, end);
 }
 
 static int		sortfn(void *left, void *right, size_t size, void *data)
@@ -90,17 +87,17 @@ static size_t	print_of_class(t_mglobal *g, t_array *ary,
 	while (aidx < ary->item_count)
 	{
 		if (cls == SZ_TINY_8)
-			total += small_show(((t_region**)ary->ptr)[aidx], flags);
+			total += small_show(g, ((t_region**)ary->ptr)[aidx], flags);
 		if (cls == SZ_MEDIUM_256)
-			total += med_show(((t_region**)ary->ptr)[aidx], flags);
+			total += med_show(g, ((t_region**)ary->ptr)[aidx], flags);
 		if (cls == SZ_HUGE)
-			total += huge_show(((t_region**)ary->ptr)[aidx], flags);
+			total += huge_show(g, ((t_region**)ary->ptr)[aidx], flags);
 		aidx++;
 	}
 	return (total);
 }
 
-size_t			do_show_alloc_mem(t_mglobal *g)
+size_t			do_show_alloc_mem(t_mglobal *g, int flags)
 {
 	void		*scratch[g->zoneinfo_count];
 	t_array		sorting;
@@ -109,10 +106,14 @@ size_t			do_show_alloc_mem(t_mglobal *g)
 	sorting = (t_array){scratch, sizeof(void*), 0, g->zoneinfo_count};
 	total = 0;
 	find_of_class(g, &sorting, SZ_TINY_8);
-	total += print_of_class(g, &sorting, SZ_TINY_8, SHOW_SMLZONE);
+	total += print_of_class(g, &sorting, SZ_TINY_8, SHOW_SMLZONE | flags);
 	find_of_class(g, &sorting, SZ_MEDIUM_256);
-	total += print_of_class(g, &sorting, SZ_MEDIUM_256, SHOW_MEDZONE);
+	total += print_of_class(g, &sorting, SZ_MEDIUM_256, SHOW_MEDZONE | flags);
 	find_of_class(g, &sorting, SZ_HUGE);
-	total += print_of_class(g, &sorting, SZ_HUGE, SHOW_LRGZONE);
+	total += print_of_class(g, &sorting, SZ_HUGE, SHOW_LRGZONE | flags);
+	if (g->show_temp)
+		write(1, "\n", 1);
+	g->show_temp = 0;
+	show_ex(g, SHOW_TOTAL, (void*)(uintptr_t)total, NULL);
 	return (total);
 }

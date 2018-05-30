@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 12:15:57 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 14:03:38 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,8 @@ void					*small_malloc(t_mglobal *g, t_size_class cls)
 			if (g->zoneinfo[idx].item_class == cls)
 				mem = reserve1(&g->zoneinfo[idx]);
 		}
+		if (mem)
+			atomic_fetch_add(&g->zoneinfo[idx].alloc_count, 1);
 		pthread_rwlock_unlock(&g->zoneinfo_lock);
 		if (mem)
 			return (mem);
@@ -92,26 +94,32 @@ ssize_t					small_free(t_region *page, size_t idx)
 		newval = maskval & ~(1 << (idx % 64));
 		if (atomic_compare_exchange_weak(pg_bitset_ptr(page, idx), &maskval,
 					newval))
+		{
+			atomic_fetch_add(&page->alloc_count, -1);
 			return (page->item_class);
+		}
 	}
 }
 
-size_t					small_show(t_region *page, int flags)
+size_t					small_show(t_mglobal *g, t_region *page, int flags)
 {
 	size_t		idx;
 	size_t		total;
 
 	total = 0;
 	idx = -1;
-	show_alloc(SHOW_ZONEHDR | SHOW_SMLZONE | flags, page->page, NULL);
+	show_alloc(g, SHOW_ZONEHDR | flags, page->page, NULL);
 	while (++idx < page->item_count)
 	{
 		if (atomic_load(pg_bitset_ptr(page, idx)) & (1 << (idx % 64)))
 		{
-			show_alloc(SHOW_ALLOCD | flags, pg_alloc_ptr(page, idx),
+			show_alloc(g, SHOW_ALLOCD | flags, pg_alloc_ptr(page, idx),
 					pg_alloc_ptr(page, idx + 1));
 			total += page->item_class;
 		}
+		else
+			show_alloc(g, SHOW_ISFREE | flags, pg_alloc_ptr(page, idx),
+					pg_alloc_ptr(page, idx + 1));
 	}
 	return (total);
 }
