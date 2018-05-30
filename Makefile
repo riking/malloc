@@ -6,7 +6,7 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/05/30 08:35:59 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/30 10:17:18 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -68,14 +68,26 @@ build/ft_malloc_%.o: src/%.c src/*.h
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-test1: testsrc/simple.c $(NAME)
+testa1: testsrc/simple.c $(NAME)
 	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
 
-test2: testsrc/circlemalloc.c $(NAME)
+testa2: testsrc/circlemalloc.c $(NAME)
 	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
 
-test3: testsrc/double_free.c $(NAME)
+testa3: testsrc/double_free.c $(NAME)
 	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
 
-test4: testsrc/alloc_way_too_much.c $(NAME)
+testa4: testsrc/alloc_way_too_much.c $(NAME)
+	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
+
+testa5: testsrc/realloc_inplace.c $(NAME)
+	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
+
+testc0: testsrc/no_allocs.c $(NAME)
+	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
+
+testc1: testsrc/simple_1024.c $(NAME)
+	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
+
+testc2: testsrc/simple_with_free.c $(NAME)
 	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
