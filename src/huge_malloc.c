@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:58:45 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 13:55:59 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 14:19:44 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,11 @@ static void		*grab_page(t_mglobal *g, t_region *page, size_t osize)
 	else
 		roundsize = osize;
 	page->page = mmap(NULL, roundsize, XPROT_RW, XMAP_AP, -1, 0);
-	if (!page->page)
+	if (page->page == MAP_FAILED)
+	{
+		page->page = NULL;
 		return (NULL);
+	}
 	page->size = roundsize;
 	page->item_class = SZ_HUGE;
 	page->item_count = osize;

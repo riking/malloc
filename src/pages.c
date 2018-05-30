@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 14:10:12 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 14:05:10 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 14:20:07 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,11 @@ static int					grab_page(t_region *r, const t_pagesizes *dfn)
 	if (r->item_class != SZ_DECOMMIT)
 		return (RET_SKIP);
 	r->page = mmap(NULL, dfn->size, XPROT_RW, XMAP_AP, -1, 0);
-	if (!r->page)
+	if (r->page == MAP_FAILED)
+	{
+		r->page = NULL;
 		return (RET_ERROR);
+	}
 	r->size = dfn->size;
 	r->item_class = dfn->item_class;
 	r->item_count = dfn->item_count;
@@ -78,8 +81,6 @@ int							more_pages(t_mglobal *g, t_size_class cls)
 	}
 }
 
-#include <ft_printf.h>
-#include <unistd.h>
 void						try_pagefree(t_mglobal *g, ssize_t page_idx)
 {
 	t_region	*page;

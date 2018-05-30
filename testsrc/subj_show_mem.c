@@ -1,40 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   simple_1024.c                                      :+:      :+:    :+:   */
+/*   subj_show_mem.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/05/30 09:06:32 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 14:28:22 by kyork            ###   ########.fr       */
+/*   Created: 2018/05/30 14:35:43 by kyork             #+#    #+#             */
+/*   Updated: 2018/05/30 14:36:23 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <malloc.h>
 
-#ifndef HAVE_SHOW
-
-void show_alloc_mem_ex(void)
-{
-}
-
-#endif
-
-extern void	show_alloc_mem_ex(void);
-
 int		main(void)
 {
-	int		i;
-	char	*addr;
-
-	i = 0;
-	while (i < 1024)
-	{
-		addr = (char*)malloc(1024);
-		addr[0] = 42;
-		addr[1023] = 41;
-		i++;
-	}
-	show_alloc_mem_ex();
+	malloc(1024);
+	malloc(1024 * 32);
+	malloc(1024 * 1024);
+	malloc(1024 * 1024 * 16);
+	malloc(1024 * 1024 * 128);
+	show_alloc_mem();
 	return (0);
 }

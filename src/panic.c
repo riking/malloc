@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 15:02:20 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 12:23:08 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 14:38:23 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,6 @@ void				log_call(t_mglobal *g, int which, void *ptr, size_t size)
 
 	if (!g->enable_logging && which != LOGT_BADFREE)
 		return ;
-	pthread_mutex_lock(&g->print_lock);
 	sz = 0;
 	if (which == LOGT_MALLOC)
 		sz = ft_snprintf(buf, 1024, PREFIX "allocated %zd bytes at %p\n",
@@ -85,7 +84,6 @@ void				log_call(t_mglobal *g, int which, void *ptr, size_t size)
 		sz = ft_snprintf(buf, 1024, PANIC_PREFIX "pointer %p passed to realloc"
 				"(%zd) was not allocated\n", getpid(), ptr, size);
 	write(2, buf, sz);
-	pthread_mutex_unlock(&g->print_lock);
 }
 
 void				log_callb(t_mglobal *g, int which, void *ptr, size_t size)

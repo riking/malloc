@@ -6,11 +6,9 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/29 15:47:54 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 14:02:50 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 14:16:01 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// gcc -o testthread testthread.c -L. -lft_malloc -L$(LIBFT_LOCATION) -lft
 
 #include <pthread.h>
 #include <stdlib.h>
@@ -26,7 +24,7 @@ void			show_alloc_mem(void);
 void			show_alloc_mem_ex(void);
 volatile int	g_stop;
 
-static void		*worker(void* arg)
+static void		*worker(void *arg)
 {
 	void		*ptrs[100];
 	unsigned	seed;

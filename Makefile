@@ -6,7 +6,7 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/05/30 14:00:58 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/30 14:36:53 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -68,29 +68,40 @@ build/ft_malloc_%.o: src/%.c src/*.h
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-testa1: testsrc/simple.c $(NAME)
-	$(CC) $(CFLAGS) -g -o $@ $^ -L./libft -lft
+TEST_LINK	= -L. -lft_malloc -DHAVE_SHOW
+ifdef SYS
+	TEST_LINK =
+endif
+
+testa1: testsrc/ft_lst.c $(NAME)
+	$(CC) $(CFLAGS) -g -o $@ $< -L./libft -lft $(TEST_LINK)
 
 testa2: testsrc/circlemalloc.c $(NAME)
-	$(CC) $(CFLAGS) -g -o $@ $^ -L./libft -lft
+	$(CC) $(CFLAGS) -g -o $@ $< -L./libft -lft $(TEST_LINK)
 
 testa3: testsrc/double_free.c $(NAME)
-	$(CC) $(CFLAGS) -g -o $@ $^ -L./libft -lft
+	$(CC) $(CFLAGS) -g -o $@ $< -L./libft -lft $(TEST_LINK)
 
 testa4: testsrc/alloc_way_too_much.c $(NAME)
-	$(CC) $(CFLAGS) -g -o $@ $^ -L./libft -lft
+	$(CC) $(CFLAGS) -g -o $@ $< -L./libft -lft $(TEST_LINK)
 
 testa5: testsrc/realloc_inplace.c $(NAME)
-	$(CC) $(CFLAGS) -g -o $@ $^ -L./libft -lft
+	$(CC) $(CFLAGS) -g -o $@ $< -L./libft -lft $(TEST_LINK)
 
 testa6: testsrc/threadhammer.c $(NAME)
-	$(CC) $(CFLAGS) -g -o $@ $^ -L./libft -lft -L. -lft_malloc
+	$(CC) $(CFLAGS) -g -o $@ $< -L./libft -lft -L. -lft_malloc
 
 testc0: testsrc/no_allocs.c $(NAME)
-	$(CC) $(CFLAGS) -g -o $@ $^ -L./libft -lft
+	$(CC) $(CFLAGS) -g -o $@ $< -L./libft -lft $(TEST_LINK)
 
 testc1: testsrc/simple_1024.c $(NAME)
-	$(CC) $(CFLAGS) -g -o $@ $^ -L./libft -lft
+	$(CC) $(CFLAGS) -g -o $@ $< -L./libft -lft $(TEST_LINK)
 
 testc2: testsrc/simple_with_free.c $(NAME)
-	$(CC) $(CFLAGS) -g -o $@ $^ -L./libft -lft
+	$(CC) $(CFLAGS) -g -o $@ $< -L./libft -lft $(TEST_LINK)
+
+testc3: testsrc/subj_realloc.c $(NAME)
+	$(CC) $(CFLAGS) -g -o $@ $< -L./libft -lft $(TEST_LINK)
+
+testc5: testsrc/subj_show_mem.c $(NAME)
+	$(CC) $(CFLAGS) -g -o $@ $< -L./libft -lft -L. -lft_malloc
