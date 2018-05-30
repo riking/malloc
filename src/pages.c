@@ -41,7 +41,7 @@ static int					grab_page(t_mglobal *g, t_region *r,
 	if (r->item_class != SZ_DECOMMIT)
 		return (RET_SKIP);
 	r->page = mmap(NULL, dfn->size, XPROT_RW, XMAP_AP, -1, 0);
-	if (r->page == MAP_FAILED)
+	if (r->page == MAP_FAILED || !r->page)
 	{
 		r->page = NULL;
 		return (RET_ERROR);
@@ -78,7 +78,7 @@ int							more_pages(t_mglobal *g, t_size_class cls)
 		pthread_rwlock_unlock(&g->zoneinfo_lock);
 		if (r)
 			return (r - 1);
-		if (!more_zoneinfo(g))
+		if (0 != more_zoneinfo(g))
 			return (-1);
 	}
 }

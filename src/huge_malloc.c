@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:58:45 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 14:19:44 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 15:18:41 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static void		*grab_page(t_mglobal *g, t_region *page, size_t osize)
 	else
 		roundsize = osize;
 	page->page = mmap(NULL, roundsize, XPROT_RW, XMAP_AP, -1, 0);
-	if (page->page == MAP_FAILED)
+	if (!page->page || page->page == MAP_FAILED)
 	{
 		page->page = NULL;
 		return (NULL);
@@ -56,7 +56,7 @@ void			*huge_malloc(t_mglobal *g, size_t size)
 			ptr = grab_page(g, page, size);
 		pthread_rwlock_unlock(&g->zoneinfo_lock);
 		if (!page)
-			if (!more_zoneinfo(g))
+			if (0 != more_zoneinfo(g))
 				return (NULL);
 	}
 	return (ptr);
