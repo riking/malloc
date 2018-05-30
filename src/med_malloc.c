@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/22 18:18:15 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 09:35:36 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 09:51:17 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ static ssize_t			bitmask_claim(ATOM_U64 *set, t_u8 size, int max)
 	chkmask = (size == 32) ? OCCUPIED : OCCUPIED & ((1ULL << (size * 2)) - 1);
 	max = (max >= 32) ? 64 : max * 2;
 	bitidx = 0;
-	while (bitidx + size <= max)
+	while (bitidx + (size * 2) <= max)
 	{
 		if ((maskval & (chkmask << bitidx)) == 0)
 		{
