@@ -6,7 +6,7 @@
 #    By: kyork <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/10/09 19:11:26 by kyork             #+#    #+#              #
-#    Updated: 2018/05/30 12:00:46 by kyork            ###   ########.fr        #
+#    Updated: 2018/05/30 12:28:34 by kyork            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -82,6 +82,9 @@ testa4: testsrc/alloc_way_too_much.c $(NAME)
 
 testa5: testsrc/realloc_inplace.c $(NAME)
 	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft
+
+testa6: testsrc/threadhammer.c $(NAME)
+	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft -L. -lft_malloc
 
 testc0: testsrc/no_allocs.c $(NAME)
 	$(CC) $(CFLAGS) -o $@ $^ -L./libft -lft

@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/24 11:58:13 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 11:41:44 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 12:35:13 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ typedef enum		e_size_class {
 ** size - the size of the mmap()ed range, in bytes
 ** page - pointer to the beginning of the page(s)
 ** item_class_size - the allocation unit for this region
+** alloc_count - number of live allocations in the region
 ** item_count - for TINY/MEDIUM, the number of available slots
 **              for HUGE, the number of bytes originally requested
 ** The minimum value for bitset_bytes is 16 (128 bits), as zones must allow
