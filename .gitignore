@@ -3,3 +3,4 @@ libft/tests/
 libft_malloc.so
 libft_malloc*.so
 /test*.dSYM
+libft/ft_printf/libftprintf_darwin.o
