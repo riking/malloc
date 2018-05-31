@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 16:23:59 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/30 15:04:52 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 18:21:14 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ void			*do_realloc(t_mglobal *g, void *ptr, size_t newsize)
 	return (newptr);
 }
 
-size_t				do_mallocsize(t_mglobal *g, const void *ptr)
+size_t			do_mallocsize(t_mglobal *g, const void *ptr)
 {
 	ssize_t		exsize;
 
