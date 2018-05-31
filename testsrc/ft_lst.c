@@ -1,21 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   simple.c                                           :+:      :+:    :+:   */
+/*   ft_lst.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 15:13:04 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 19:01:24 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/30 18:59:28 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 #include <libft.h>
+#include <malloc.h>
 
 #define DATA_T int
-
-void			show_alloc_mem(void);
 
 static void		deldata(void *ptr, size_t size)
 {
