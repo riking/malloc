@@ -6,7 +6,7 @@
 /*   By: kyork <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/23 17:27:51 by kyork             #+#    #+#             */
-/*   Updated: 2018/05/29 15:18:46 by kyork            ###   ########.fr       */
+/*   Updated: 2018/05/31 18:19:58 by kyork            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <malloc.h>
 
 #include <stdlib.h>
+#include <stdio.h>
 
 int			main(int argc, char **argv)
 {
@@ -39,4 +40,5 @@ int			main(int argc, char **argv)
 		buffer[idx % 5000] = malloc(size);
 		idx++;
 	}
+	printf("Done\n");
 }
